@@ -13,6 +13,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const authModule = require('./authModule');
 
 // const authRoutes = require('./routes/auth/login');
 // const protectedRoute = require('./routes/protectedRoute');
@@ -44,105 +45,55 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
 // Runs once to add a new document in MongoDB
-db.once('open', async () => {
-  try {
-    const hashedPassword = await bcrypt.hash('gstb1337', 10);
-    const newUser = new User({ username: 'Zaggy', password: hashedPassword });
-    await newUser.save();
-    console.log('User document inserted');
-  } catch (err) {
-    console.error('Error inserting user document:', err);
-  }
-});
+// db.once('open', async () => {
+//   try {
+//     const hashedPassword = await bcrypt.hash('gstb1337', 10);
+//     const newUser = new User({ username: 'Zaggy', password: hashedPassword });
+//     await newUser.save();
+//     console.log('User document inserted');
+//   } catch (err) {
+//     console.error('Error inserting user document:', err);
+//   }
+// });
 // ===============[ \MongoDB connection ]=============== //
 
 
 
-// =====================[ PASSPORT AUTHENTICATION ]=====================
-// Imports Passport Auth methods from passport.js
-// const passportAuth = require('./passport');
-// =====================[ \PASSPORT AUTHENTICATION ]=====================
+// =====================[ PASSPORT/JWT AUTHENTICATION ]=====================
+authModule.initializePassport(app);
+// =====================[ \PASSPORT/JWT AUTHENTICATION ]=====================
 
 
 
 // =====================[ ROUTES ]=====================
-// const indexRouter = require('./routes/index');
-// const loginRouter = require('./routes/auth/login')
-// app.use('/', loginRouter);
-// =====================[ \ROUTES ]=====================
-
-
-// =====================[ AUTH ]=====================
-passport.use(
-  new LocalStrategy(async(username, password, done) => {
-    try {
-      const user = await User.findOne({ username: username });
-      if (!user) {
-        console.log('NO USER FOUND')
-        return done(null, false, { message: "Incorrect username" });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        console.log('WRONG PASSWORD')
-        return done(null, false, { message: "Incorrect password" });
-      }
-      console.log('USER FOUND IN DB!')
-      return done(null, user);
-    } catch (err) {
-      return done(err);
-    }
-  })
-);
-
-passport.serializeUser(function(user, done) {
-  done(null, user._id);
-});
-
-passport.deserializeUser(async function(id, done) {
-  try{
-    const user = User.findById(id);
-    done(null, user);
-  } catch(err) {
-    done(err);
-  }
-});
-
-app.use(session({ secret: 'potatoes', resave: false, saveUninitialized: false }));
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
-  const user = req.user;
-  const token = jwt.sign({ id: user._id, username: user.username }, 'potatoes', { expiresIn: '24h' });
-  res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
-  res.json({ message: 'Logged in successfully', token });
-});
-
-function authenticateJWT(req, res, next) {
-  const token = req.cookies.token;
-  if (token) {
-    jwt.verify(token, 'potatoes', (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
-}
-
-app.get('/protected', authenticateJWT, (req, res) => {
+app.post('/login', passport.authenticate('local', { session: false }), authModule.loginHandler);
+app.get('/protected', authModule.authenticateJWT, (req, res) => {
   res.json({ message: 'You are authenticated', user: req.user });
 });
+app.post('/logout', authModule.logoutHandler);
 
-app.post('/logout', (req, res) => {
-  res.clearCookie('token');
-  res.json({ message: 'Logged out successfully' });
-});
-// =====================[ \AUTH ]=====================
+const uploadRoute = require('./routes/api/faweUploadSchematic');
+app.use('/upload', uploadRoute);
+
+const uploadSchematic = require('./routes/api/uploadSchematic');
+app.use('/upload-schematic', uploadSchematic)
+
+const getAllSchematics = require('./routes/api/getAllSchematics');
+app.use('/get-schematics', getAllSchematics)
+
+const getAllTags = require('./routes/api/getAllTags');
+app.use('/get-tags', getAllTags)
+
+const getSchematicFile = require('./routes/api/getSchematicFile');
+app.use('/get-schematic-file/', getSchematicFile)
+
+const getSchematicFAWEString = require('./routes/api/getSchematicFAWEString');
+app.use('/get-schematic-fawe-string/', getSchematicFAWEString)
+
+const removeSchematic = require('./routes/api/removeSchematic');
+app.use('/remove-schematic/', removeSchematic)
+// =====================[ \ROUTES ]=====================
+
 
 
 // =====================[ ERROR HANDLERS ]=====================
