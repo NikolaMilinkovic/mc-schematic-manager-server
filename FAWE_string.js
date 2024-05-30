@@ -1,8 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const puppeteer = require('puppeteer');
-require('dotenv').config();
-
+require('dotenv').config()
 
 const getFAWEString = async (originalname, buffer, req, res) => {
   try {
@@ -17,7 +16,6 @@ const getFAWEString = async (originalname, buffer, req, res) => {
     const launchOptions = {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome'
     };
 
     const browser = await puppeteer.launch(launchOptions);
