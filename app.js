@@ -16,8 +16,17 @@ const { body, validationResult } = require('express-validator');
 const authModule = require('./authModule');
 
 const app = express();
-app.use(cors());
-app.options('*', cors());
+
+const allowedOrigins = [
+  'https://mc-schematic-manager.vercel.app',
+  'https://mc-schematic-manager-server.adaptable.app',
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
