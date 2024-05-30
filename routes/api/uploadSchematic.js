@@ -36,6 +36,9 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
 
     // GET FAWE STRING
     const FAWE = await getFAWEString(originalname, buffer, req, res);
+    if(!FAWE){
+      throw new Error('Puppeteer failed to extract FAWE strings.')
+    }
 
     let imageData = {}
     if(image){

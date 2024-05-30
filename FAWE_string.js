@@ -41,7 +41,7 @@ require('dotenv').config();
       // Use a try-catch block to catch TimeoutError and ignore it
       try {
         // Waiting for navigation
-        await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 1000 });
+        await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 5000 });
       } catch {
         console.warn('Navigation timed out, continuing...');
       }
