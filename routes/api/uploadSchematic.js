@@ -35,7 +35,9 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
     }
 
     // GET FAWE STRING
-    const FAWE = await getFAWEString(originalname, buffer, req, res);
+    // const FAWE = await getFAWEString(originalname, buffer, req, res);
+    // ${FAWE.type}
+    // ${FAWE.upload}
 
     let imageData = {}
     if(image){
@@ -49,7 +51,7 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
       tags: tagArr,
       original_file_name: originalname,
       file: buffer,
-      fawe_string: `//schematic load ${FAWE.type} url:${FAWE.upload}`,
+      fawe_string: `//schematic load  url:`,
       image: imageData
     });
 

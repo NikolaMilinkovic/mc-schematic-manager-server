@@ -5,6 +5,7 @@ const router = express.Router();
 router.get('/', async(req, res) => {
   try{
     const tagsList = await Tags.find();
+    console.log(tagsList)
 
     res.status(200).json(tagsList);
   } catch(err){
