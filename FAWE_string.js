@@ -50,7 +50,7 @@ const getFAWEString = async (originalname, buffer, req, res) => {
     console.log('Browser closed and temp file deleted');
 
     if (redirectUrl) {
-      const parseUrl = new URL(`${process.env.HOST}${redirectUrl.toString()}`);
+      const parseUrl = new URL(`http://localhost:3000/${redirectUrl.toString()}`);
       const upload = parseUrl.searchParams.get('upload');
       const type = parseUrl.searchParams.get('type');
       const result = { upload, type };
