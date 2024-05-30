@@ -15,6 +15,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const authModule = require('./authModule');
+const crypto = require('crypto');
 
 const app = express();
 
