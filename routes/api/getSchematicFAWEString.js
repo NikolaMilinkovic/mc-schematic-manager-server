@@ -13,7 +13,6 @@ router.get('/:id', async(req, res) => {
     if (!schematic) {
       return res.status(404).send('Schematic not found');
     }
-    console.log(schematic)
 
     // Check for last update
     const currentDate = Date.now()
@@ -31,19 +30,15 @@ router.get('/:id', async(req, res) => {
       const tempFilePath = path.join(uploadsDir, schematic.original_file_name);
       fs.writeFileSync(tempFilePath, schematic.file); // Moze biti greska
 
-      console.log('Launching Puppeteer');
       const launchOptions = { headless: true };
       const browser = await puppeteer.launch(launchOptions);
       const page = await browser.newPage();
 
-      console.log('Navigating to the upload page');
       await page.goto('https://schem.intellectualsites.com/fawe/index.php');
 
-      console.log('Waiting for file input selector');
       await page.waitForSelector('input[type=file]');
       const inputUploadHandle = await page.$('input[type=file]');
 
-      console.log('Uploading file');
       await inputUploadHandle.uploadFile(tempFilePath);
 
       let redirectUrl;
@@ -57,7 +52,6 @@ router.get('/:id', async(req, res) => {
 
       // Use a try-catch block to catch TimeoutError and ignore it
       try {
-        console.log('Waiting for navigation');
         await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 1000 });
       } catch {
         console.warn('Navigation timed out, continuing...');
@@ -74,7 +68,7 @@ router.get('/:id', async(req, res) => {
       const type = parseUrl.searchParams.get('type');
 
       if (redirectUrl) {
-        console.log('Adding missing fields')
+        // Adds missing fields
         if (!schematic.hasOwnProperty('fawe_string')) {
           schematic.fawe_string = `//schematic load ${type} url:${upload}`;
         }
@@ -82,11 +76,10 @@ router.get('/:id', async(req, res) => {
           schematic.last_updated = new Date();
         }
 
-        console.log('Updating fields')
+        // Updates fields
         schematic.fawe_string = `//schematic load ${type} url:${upload}`;
         schematic.last_updated = new Date();
 
-        console.log(schematic)
         await schematic.save();
 
         return res.send(schematic.fawe_string);

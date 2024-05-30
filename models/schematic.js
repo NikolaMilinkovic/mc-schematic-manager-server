@@ -9,6 +9,16 @@ const SchematicSchema = new Schema ({
   file: { type: Buffer, required: true, unique: true },
   fawe_string: { type: String, default: '' },
   last_updated: { type: Date, default: Date.now() },
+  image:{
+    publicId:{
+        type: String,
+        required: true,
+    },
+    url: {
+        type: String,
+        required: true,
+    }
+}
 })
 
 SchematicSchema.index({ name: 1 }, { unique: true });

@@ -20,26 +20,25 @@ const upload = multer({ storage: storage });
 
 router.post('/', upload.single('schematicFile'), async (req, res) => {
   try {
-    console.log('File upload started');
     const file = req.file;
     if (!file) {
       console.error('No file uploaded');
       return res.status(400).send('No file uploaded.');
     }
 
-    console.log('Launching Puppeteer');
+    // Launching puppeteer
     const launchOptions = { headless: true };
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
 
-    console.log('Navigating to the upload page');
+    // Navigating to the upload page
     await page.goto('https://schem.intellectualsites.com/fawe/index.php');
 
-    console.log('Waiting for file input selector');
+    // Waiting for file input selector
     await page.waitForSelector('input[type=file]');
     const inputUploadHandle = await page.$('input[type=file]');
 
-    console.log('Uploading file');
+    // Uploading file
     await inputUploadHandle.uploadFile(file.path);
 
     let redirectUrl;
@@ -53,7 +52,7 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
 
     // Use a try-catch block to catch TimeoutError and ignore it
     try {
-      console.log('Waiting for navigation');
+      // Waiting for navigation
       await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 1000 });
     } catch {
       console.warn('Navigation timed out, continuing...');
@@ -62,7 +61,6 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
     await browser.close();
 
     if (redirectUrl) {
-      console.log('Redirect URL:', redirectUrl);
       return res.send(redirectUrl);
     } else {
       console.error('Failed to retrieve redirect URL');

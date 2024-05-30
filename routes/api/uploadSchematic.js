@@ -7,11 +7,12 @@ const router = express.Router();
 const Tags = require('../../models/tags');
 const Schematic = require('../../models/schematic');
 require('dotenv').config();
+const { uploadToCloudinary } = require('../../services/cloudinary');
 
 const upload = multer();
 router.post('/', upload.single('schematicFile'), async (req, res) => {
   const { originalname, buffer } = req.file;
-  const { tags, schematicName } = req.body;
+  const { tags, schematicName, image } = req.body;
 
   try{
     // Check for existing schematic in DB
@@ -40,19 +41,19 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
     const tempFilePath = path.join(uploadsDir, originalname);
     fs.writeFileSync(tempFilePath, buffer);
 
-    console.log('Launching Puppeteer');
+    // Launching Puppeteer
     const launchOptions = { headless: true };
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
 
-    console.log('Navigating to the upload page');
+    // Navigating to the upload page
     await page.goto('https://schem.intellectualsites.com/fawe/index.php');
 
-    console.log('Waiting for file input selector');
+    // Waiting for file input selector
     await page.waitForSelector('input[type=file]');
     const inputUploadHandle = await page.$('input[type=file]');
 
-    console.log('Uploading file');
+    // Uploading file
     await inputUploadHandle.uploadFile(tempFilePath);
 
     var redirectUrl;
@@ -66,7 +67,7 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
 
     // Use a try-catch block to catch TimeoutError and ignore it
     try {
-      console.log('Waiting for navigation');
+      // Waiting for navigation
       await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 1000 });
     } catch {
       console.warn('Navigation timed out, continuing...');
@@ -82,22 +83,33 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
       );
       var upload = parseUrl.searchParams.get('upload');
       var type = parseUrl.searchParams.get('type');
+      console.log('Finish with puppeteer successfully')
+
     } else {
       console.error('Failed to retrieve redirect URL');
       res.status(500).json({ error: 'Failed to retrieve redirect URL.' });
     }
+
     // ======================[\FAWE STRING]======================
 
+    let imageData = {}
+    if(image){
+        const results = await uploadToCloudinary(image, "mc-schematic-manager-images")
+        imageData = results
+        console.log('Finish with Cloudinary successfully')
+    }
 
     const newSchematic = new Schematic({
       name: schematicName,
       tags: tagArr,
       original_file_name: originalname,
       file: buffer,
-      fawe_string: `//schematic load ${type} url:${upload}`
+      fawe_string: `//schematic load ${type} url:${upload}`,
+      image: imageData
     });
 
     await newSchematic.save();
+    console.log('Schematic added to DB')
     res.status(201).send('File uploaded and stored successfully');
 
   } catch (error) {
