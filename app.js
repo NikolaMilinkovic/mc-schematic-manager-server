@@ -39,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // ===============[ MongoDB connection ]=============== //
-const conn_string = process.env.DB_CONN;
+const conn_string = process.env.DATABASE_URL;
 mongoose.connect(conn_string);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
@@ -53,7 +53,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ 
-    mongoUrl: process.env.DB_CONN,
+    mongoUrl: process.env.DATABASE_URL,
     ttl: 365 * 24 * 60 * 60 * 1000 // session TTL (optional)
   })
 }));
