@@ -1,21 +1,22 @@
 const express = require('express');
 const Schematic = require('../../models/schematic')
 const router = express.Router();
-const path = require('path');
+const { ObjectId } = require('mongodb');
 
 router.get('/:id', async(req, res) => {
   try{
     const id = req.params.id
+    console.log(id);
     const schematic = await Schematic.findById(id);
     if (!schematic) {
-      return res.status(404).send('Schematic not found');
+      return res.status(404).json({message: 'Schematic not found'});
     }
 
-    res.send(schematic);
+    res.json(schematic);
 
   } catch(err){
     console.log(err);
-    res.status(500).send('Error while fetching schematics');
+    res.status(500).json({message:'Error while fetching schematics'});
   }
 })
 

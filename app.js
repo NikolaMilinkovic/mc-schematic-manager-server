@@ -78,14 +78,20 @@ app.use('/upload', uploadRoute);
 const uploadSchematic = require('./routes/api/uploadSchematic');
 app.use('/upload-schematic', uploadSchematic)
 
+const updateSchematic = require('./routes/api/updateSchematic');
+app.use('/update-schematic/', updateSchematic);
+
 const getAllSchematics = require('./routes/api/getAllSchematics');
-app.use('/get-schematics', getAllSchematics)
+app.use('/get-schematics', getAllSchematics);
 
 const getAllTags = require('./routes/api/getAllTags');
-app.use('/get-tags', getAllTags)
+app.use('/get-tags', getAllTags);
 
 const getSchematicFile = require('./routes/api/getSchematicFile');
-app.use('/get-schematic-file/', getSchematicFile)
+app.use('/get-schematic-file/', getSchematicFile);
+
+const getSchematic = require('./routes/api/getSchematic');
+app.use('/get-schematic/', getSchematic);
 
 const getSchematicFAWEString = require('./routes/api/getSchematicFAWEString');
 app.use('/get-schematic-fawe-string/', getSchematicFAWEString)
