@@ -9,6 +9,7 @@ const cors = require('cors');
 const User = require('./models/user');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
@@ -46,6 +47,18 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
 // ===============[ \MongoDB connection ]=============== //
 
+
+
+
+app.use(session({
+  secret: crypto.randomBytes(64).toString('hex'),
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ 
+    mongoUrl: process.env.DB_CONN,
+    ttl: 365 * 24 * 60 * 60 * 1000 // session TTL (optional)
+  })
+}));
 
 
 // =====================[ PASSPORT/JWT AUTHENTICATION ]=====================
