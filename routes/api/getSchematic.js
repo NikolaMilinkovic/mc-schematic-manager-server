@@ -1,7 +1,6 @@
 const express = require('express');
 const Schematic = require('../../models/schematic')
 const router = express.Router();
-const { ObjectId } = require('mongodb');
 
 router.get('/:id', async(req, res) => {
   try{

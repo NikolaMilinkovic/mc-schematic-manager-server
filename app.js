@@ -15,15 +15,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const authModule = require('./authModule');
 
-// const authRoutes = require('./routes/auth/login');
-// const protectedRoute = require('./routes/protectedRoute');
-
 const app = express();
-// const corsOptions = {
-//   origin: 'http://localhost:3000/',
-//   optionsSuccessStatus: 200 
-// }
-// app.use(cors(corsOptions));
 app.use(cors());
 app.options('*', cors());
 
@@ -43,18 +35,6 @@ const conn_string = process.env.DB_CONN;
 mongoose.connect(conn_string);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
-
-// Runs once to add a new document in MongoDB
-// db.once('open', async () => {
-//   try {
-//     const hashedPassword = await bcrypt.hash('gstb1337', 10);
-//     const newUser = new User({ username: 'Zaggy', password: hashedPassword });
-//     await newUser.save();
-//     console.log('User document inserted');
-//   } catch (err) {
-//     console.error('Error inserting user document:', err);
-//   }
-// });
 // ===============[ \MongoDB connection ]=============== //
 
 

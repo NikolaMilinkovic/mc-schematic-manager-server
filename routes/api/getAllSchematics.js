@@ -1,11 +1,10 @@
 const express = require('express');
 const Schematic = require('../../models/schematic')
 const router = express.Router();
-const path = require('path');
 
 router.get('/', async(req, res) => {
   try{
-    const schematics = await Schematic.find();
+    const schematics = await Schematic.find().sort({ name: 1 });
 
     res.status(200).json(schematics);
   } catch(err){

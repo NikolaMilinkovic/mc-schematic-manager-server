@@ -88,7 +88,7 @@ router.get('/:id', async(req, res) => {
         res.status(500).json({ error: 'Failed to retrieve redirect URL.' });
       }
     } 
-    // SAMO SALJEMO STRING
+
     else {
       console.log(`Returning to user: ${schematic.fawe_string}`)
       return res.send(schematic.fawe_string);
