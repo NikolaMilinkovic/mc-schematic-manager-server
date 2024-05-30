@@ -19,16 +19,13 @@ const crypto = require('crypto');
 
 const app = express();
 
-const allowedOrigins = [
-  'https://mc-schematic-manager.vercel.app',
-  'https://mc-schematic-manager-server.adaptable.app',
-];
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
+
+app.options('*', cors())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
