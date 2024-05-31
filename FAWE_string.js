@@ -40,7 +40,7 @@ const getFAWEString = async (originalname, buffer, req, res) => {
     });
 
     try {
-      await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 5000 });
+      await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 1000 });
     } catch {
       console.warn('Navigation timed out, continuing...');
     }
