@@ -16,6 +16,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const authModule = require('./authModule');
 const crypto = require('crypto');
+const authenticateUser = require('./routes/api/authenticateUser');
 
 const app = express();
 
@@ -45,7 +46,34 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
 // ===============[ \MongoDB connection ]=============== //
 
+async function addUserOnStartup(username, plainPassword) {
+  try {
+    const existingUser = await User.findOne({ username });
 
+    if (!existingUser) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(plainPassword, salt);
+
+      const newUser = new User({
+        username,
+        password: hashedPassword,
+        session_id: 'test_session_id',
+      });
+
+      await newUser.save();
+      console.log('User created');
+    } else {
+      console.log('User already exists');
+    }
+  } catch (error) {
+    console.error('Error creating user:', error);
+  } finally {
+    await mongoose.connection.close();
+  }
+}
+
+// Example usage
+// addUserOnStartup('Zaggyy', 'zaggyy_@gold_studios');
 
 
 app.use(session({
@@ -66,38 +94,43 @@ authModule.initializePassport(app);
 
 
 // =====================[ ROUTES ]=====================
+
 app.post('/login', passport.authenticate('local', { session: false }), authModule.loginHandler);
 app.get('/protected', authModule.authenticateJWT, (req, res) => {
   res.json({ message: 'You are authenticated', user: req.user });
 });
 app.post('/logout', authModule.logoutHandler);
 
+app.use(authenticateUser);
 const uploadRoute = require('./routes/api/faweUploadSchematic');
-app.use('/upload', uploadRoute);
+app.use('/upload', authenticateUser, uploadRoute);
 
 const uploadSchematic = require('./routes/api/uploadSchematic');
-app.use('/upload-schematic', uploadSchematic)
+app.use('/upload-schematic', authenticateUser, uploadSchematic)
 
 const updateSchematic = require('./routes/api/updateSchematic');
-app.use('/update-schematic/', updateSchematic);
+app.use('/update-schematic/', authenticateUser, updateSchematic);
 
 const getAllSchematics = require('./routes/api/getAllSchematics');
-app.use('/get-schematics', getAllSchematics);
+app.use('/get-schematics', authenticateUser, getAllSchematics);
 
 const getAllTags = require('./routes/api/getAllTags');
-app.use('/get-tags', getAllTags);
+app.use('/get-tags', authenticateUser, getAllTags);
 
 const getSchematicFile = require('./routes/api/getSchematicFile');
-app.use('/get-schematic-file/', getSchematicFile);
+app.use('/get-schematic-file/', authenticateUser, getSchematicFile);
 
 const getSchematic = require('./routes/api/getSchematic');
-app.use('/get-schematic/', getSchematic);
+app.use('/get-schematic/', authenticateUser, getSchematic);
 
 const getSchematicFAWEString = require('./routes/api/getSchematicFAWEString');
-app.use('/get-schematic-fawe-string/', getSchematicFAWEString)
+app.use('/get-schematic-fawe-string/', authenticateUser, getSchematicFAWEString)
 
 const removeSchematic = require('./routes/api/removeSchematic');
-app.use('/remove-schematic/', removeSchematic)
+app.use('/remove-schematic/', authenticateUser, removeSchematic)
+
+const validateSession = require('./routes/api/validateSession');
+app.use('/validate-session', authenticateUser, validateSession)
 // =====================[ \ROUTES ]=====================
 
 

@@ -56,7 +56,15 @@ function loginHandler(req, res) {
   const user = req.user;
   const token = jwt.sign({ id: user._id, username: user.username }, 'potatoes', { expiresIn: '24h' });
   res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
+
   res.json({ message: 'Logged in successfully', token });
+  updateUserSessionId(user._id, token)
+}
+
+async function updateUserSessionId(id, token){
+  const user = await User.findOne({ _id: id });
+  user.session_id = token;
+  await user.save();
 }
 
 // JWT Authentication Middleware
