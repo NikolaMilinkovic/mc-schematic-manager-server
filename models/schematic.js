@@ -6,7 +6,7 @@ const SchematicSchema = new Schema ({
   tags: [String],
   created_at: { type: Date, required: true, default: Date.now() },
   original_file_name: { type: String },
-  file: { type: Buffer, required: true, unique: true },
+  file: { type: Buffer, required: true },
   fawe_string: { type: String, default: '' },
   last_updated: { type: Date, default: Date.now() },
   image:{
@@ -21,7 +21,7 @@ const SchematicSchema = new Schema ({
 }
 })
 
-SchematicSchema.index({ name: 1 }, { unique: true });
-SchematicSchema.index({ file: 1 }, { unique: true });
+SchematicSchema.index({ name: 1 });
+SchematicSchema.index({ file: 1 });
 
 module.exports = mongoose.model("Schematic", SchematicSchema);

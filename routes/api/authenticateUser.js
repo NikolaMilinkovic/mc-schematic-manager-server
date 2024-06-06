@@ -3,9 +3,6 @@ const User = require('../../models/user');
 async function authenticateUser(req, res, next) {
   try {
     const sessionId = req.headers['authorization'];
-    console.log(req.headers)
-    console.log('LOGGING SESSION ID')
-    console.log(sessionId)
     if (!sessionId) {
       return res.status(401).json({ message: 'Token not provided' });
     }

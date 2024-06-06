@@ -73,7 +73,7 @@ async function addUserOnStartup(username, plainPassword) {
 }
 
 // Example usage
-// addUserOnStartup('Zaggyy', 'zaggyy_@gold_studios');
+// addUserOnStartup('Helvos2', 'Helvos2');
 
 
 app.use(session({
@@ -92,10 +92,21 @@ authModule.initializePassport(app);
 // =====================[ \PASSPORT/JWT AUTHENTICATION ]=====================
 
 
-
 // =====================[ ROUTES ]=====================
+const validateLoginForm = [
+  body('username').notEmpty().withMessage('Username is required').escape(),
+  body('password').notEmpty().withMessage('Password is required')
+]
+app.post('/login', validateLoginForm,
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+      return res.status(400).json({ errors: errors.array() })
+    }
+    next();
+  },
+  passport.authenticate('local', { session: false }), authModule.loginHandler);
 
-app.post('/login', passport.authenticate('local', { session: false }), authModule.loginHandler);
 app.get('/protected', authModule.authenticateJWT, (req, res) => {
   res.json({ message: 'You are authenticated', user: req.user });
 });

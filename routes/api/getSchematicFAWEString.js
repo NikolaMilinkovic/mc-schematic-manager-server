@@ -4,9 +4,21 @@ const puppeteer = require('puppeteer');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const { check, validationResult } = require('express-validator');
 
 
-router.get('/:id', async(req, res) => {
+router.get('/:id', 
+  [
+    check('id').notEmpty().withMessage('ID parameter must not be empty!').escape()
+  ],
+async(req, res) => {
+
+  // Validation of input
+  const errors = validationResult(req)
+  if(!errors.isEmpty()){
+    return res.status(400).json({ errors: errors.array() })
+  }
+  
   try{
     const id = req.params.id
     const schematic = await Schematic.findById(id);
@@ -82,6 +94,7 @@ router.get('/:id', async(req, res) => {
 
         await schematic.save();
 
+        console.log('> FAWE string returned successfully.')
         return res.send(schematic.fawe_string);
       } else {
         console.error('Failed to retrieve redirect URL');
@@ -90,7 +103,8 @@ router.get('/:id', async(req, res) => {
     } 
 
     else {
-      console.log(`Returning to user: ${schematic.fawe_string}`)
+      console.log('> FAWE string returned successfully.')
+      // console.log(`Returning to user: ${schematic.fawe_string}`)
       return res.send(schematic.fawe_string);
     }
   } catch (error) {
