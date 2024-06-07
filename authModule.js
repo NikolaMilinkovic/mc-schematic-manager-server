@@ -57,7 +57,7 @@ function loginHandler(req, res) {
   const token = jwt.sign({ id: user._id, username: user.username }, 'potatoes', { expiresIn: '24h' });
   res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
 
-  res.json({ message: 'Logged in successfully', token });
+  res.json({ message: 'Logged in successfully', token, user: user });
   updateUserSessionId(user._id, token)
 }
 

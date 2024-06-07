@@ -28,7 +28,7 @@ router.post('/:id',
       const id = req.params.id;
       const schematic = await Schematic.findById(id);
       if (!schematic) {
-        return res.status(404).json({ message: 'Schematic not found' });
+        return res.status(404).json({ message: 'Schematic not found', status: 404 });
       }
       // Check for new File
       let originalname;
@@ -67,10 +67,10 @@ router.post('/:id',
       }
 
       await schematic.save();
-      res.status(200).json({ message: 'Schematic updated successfully' });
+      res.status(200).json({ message: 'Schematic updated successfully', status: 200 });
     } catch(err){
       console.log(err)
-      res.status(500).json({ message: 'Error while updating schematics' });
+      res.status(500).json({ message: 'Error while updating schematics', status: 500 });
     }
   }
 )

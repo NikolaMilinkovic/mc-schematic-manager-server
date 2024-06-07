@@ -73,7 +73,7 @@ async function addUserOnStartup(username, plainPassword) {
 }
 
 // Example usage
-// addUserOnStartup('Helvos2', 'Helvos2');
+// addUserOnStartup('Helvos', 'jajesamcarsveta2');
 
 
 app.use(session({
@@ -106,6 +106,9 @@ app.post('/login', validateLoginForm,
     next();
   },
   passport.authenticate('local', { session: false }), authModule.loginHandler);
+
+const registerRoute = require('./routes/auth/registerUser');
+app.use('/register', registerRoute);
 
 app.get('/protected', authModule.authenticateJWT, (req, res) => {
   res.json({ message: 'You are authenticated', user: req.user });

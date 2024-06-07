@@ -4,6 +4,7 @@ const { removeFromCloudinary } = require('../../services/cloudinary');
 const router = express.Router();
 const path = require('path');
 const { check, validationResult } = require('express-validator');
+const User = require('../../models/user');
 
 router.get('/:id',
   [
@@ -18,11 +19,18 @@ router.get('/:id',
 
     try{
       const id = req.params.id
-      const cachedSchematic = await Schematic.findOne({ _id:id });
+      const cachedSchematic = await Schematic.findOne({ _id: id });
+      const sessionId = req.headers['authorization'];
       if (!cachedSchematic) {
         return res.status(404).send('Schematic not found');
       }
+      const user = await User.findOneAndUpdate(
+        { session_id: sessionId },
+        { $pull: { schematics: id } },
+        { new: true }
+      )
       const schematic = await Schematic.findOneAndDelete({ _id: id });
+
       if (!schematic) {
         return res.status(404).send('Schematic not found');
       }
