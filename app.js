@@ -20,13 +20,15 @@ const authenticateUser = require('./routes/api/authenticateUser');
 
 const app = express();
 
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   credentials: true,
+// }));
 
-app.options('*', cors())
+// app.options('*', cors())
+
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
