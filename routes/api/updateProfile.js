@@ -37,6 +37,11 @@ router.post('/',
       // FIND USER IN DB
       const user = await User.findOne({ _id: id });
 
+
+      const hashedPassword = await bcrypt.hash('smor', 10);
+
+      console.log('Logging password')
+      console.log(hashedPassword)
       // HANDLE USERNAME UPDATE
       if(username !== user.username){
         const findDuplicate = await User.findOne({ username: username });
@@ -60,11 +65,12 @@ router.post('/',
       }
 
       // HANDLE PASSWORD UPDATE
-      if(old_password){
+      if(old_password.trim()){
         const match = await bcrypt.compare(old_password, user.password);
         if (match) {
           const hashedPassword = await bcrypt.hash(new_password, 10);
           user.password = hashedPassword;
+          console.log(hashedPassword);
           console.log(`> Updated password to ${hashedPassword}`);
         } else {
           return res.status(400).json({ message: 'Invalid password. Please try again.' });

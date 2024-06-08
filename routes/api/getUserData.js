@@ -6,8 +6,6 @@ router.get('/',
   async(req, res) => {
   try{
     const sessionId = req.headers['authorization'];
-    console.log('Logging getuserdata session id.')
-    console.log(sessionId);
     const user = await User.findOne({ session_id: sessionId });
     if (!user) {
       return res.status(401).json({message: 'User not found'});

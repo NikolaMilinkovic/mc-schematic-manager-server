@@ -20,14 +20,6 @@ const authenticateUser = require('./routes/api/authenticateUser');
 
 const app = express();
 
-// app.use(cors({
-//   origin: '*',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   credentials: true,
-// }));
-
-// app.options('*', cors())
-
 app.use(cors());
 
 // view engine setup
@@ -153,6 +145,9 @@ app.use('/update-profile', authenticateUser, updateProfile);
 
 const getUserData = require('./routes/api/getUserData');
 app.use('/get-user-data', authenticateUser, getUserData);
+
+const getAllStudioUsers = require('./routes/api/getAllStudioUsers');
+app.use('/get-all-studio-users', authenticateUser, getAllStudioUsers);
 // =====================[ \ROUTES ]=====================
 
 

@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const StudioUser = require('../models/studioUser')
 
-const UserSchema = new Schema ({
+const StudioUserSchema = new Schema ({
   username: { type: String, required: [true, 'Please enter a valid username'], unique: [true, 'Username already registered'] },
-  email: { type: String, unique: [true, 'Email already registered'] },
   password: { type: String, required: [true, 'Please enter a valid password'] },
-  role: { type: String, required: [true, 'Please enter a valid role'], default: 'owner' },
-  session_id: { type: String, required: [true, 'Please provide a valid session id'] },
+  custom_id: { type: String, required: [true, 'Please enter a valid custom id'] },
+  role: { type: String, required: [true, 'Please enter a valid role'], default: 'studio_user' },
+  session_id: { type: String, required: [true, 'Please provide a valid session id'], default: 'defaultSssionId' },
   created_at: { type: Date, required: true, default: Date.now() },
-  schematics: [{ type: Schema.Types.ObjectId, ref: 'Schematic' }],
-  collections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }],
+  parent_user_id: { type: Schema.Types.ObjectId, ref: 'User' },
   avatar:{
     publicId:{
         type: String,
@@ -22,13 +20,6 @@ const UserSchema = new Schema ({
         required: true,
         default: 'https://res.cloudinary.com/dm7ymtpki/image/upload/v1717774667/mc-schematic-manager-images/xbcldkvm8tpj3dri4jgg.jpg'
     },
-  },
-  studio: {
-    name: {
-      type: String,
-      default: 'Set studio name here!'
-    },
-    users: [{ type: Schema.Types.ObjectId, ref: 'StudioUser' }],
   },
   permissions: {
     schematic: {
@@ -51,6 +42,4 @@ const UserSchema = new Schema ({
   }
 })
 
-UserSchema.index({ schematics: 1 });
-
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("StudioUser", StudioUserSchema);
