@@ -34,7 +34,7 @@ router.post('/',
       // console.log(`Studio_name: ${studio_name}`)
       // console.log(`New_password: ${new_password}`)
     // =========================[\EXTRACT DATA]=========================
-      // FIN USER IN DB
+      // FIND USER IN DB
       const user = await User.findOne({ _id: id });
 
       // HANDLE USERNAME UPDATE
