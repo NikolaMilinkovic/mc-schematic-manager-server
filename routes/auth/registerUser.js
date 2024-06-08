@@ -33,6 +33,7 @@ router.post('/',
           username: data.username,
           email: data.email,
           password: hashedPassword,
+          role: 'owner',
           session_id: 'test_session_id',
         });
   

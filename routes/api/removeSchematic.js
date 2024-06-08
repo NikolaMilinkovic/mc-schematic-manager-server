@@ -36,7 +36,7 @@ router.get('/:id',
       }
 
       // Removes the img from Cloudinary
-      await removeFromCloudinary(cachedSchematic.image.publicId);
+      // await removeFromCloudinary(cachedSchematic.image.publicId);
 
       res.status(201).send('Schematic removed successfully');
     } catch(err){

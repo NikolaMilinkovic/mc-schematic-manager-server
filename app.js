@@ -145,6 +145,12 @@ app.use('/remove-schematic/', authenticateUser, removeSchematic)
 
 const validateSession = require('./routes/api/validateSession');
 app.use('/validate-session', authenticateUser, validateSession)
+
+const updateProfile = require('./routes/api/updateProfile');
+app.use('/update-profile', authenticateUser, updateProfile);
+
+const getUserData = require('./routes/api/getUserData');
+app.use('/get-user-data', authenticateUser, getUserData);
 // =====================[ \ROUTES ]=====================
 
 
