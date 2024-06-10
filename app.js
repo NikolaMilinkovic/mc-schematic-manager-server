@@ -148,6 +148,9 @@ app.use('/get-user-data', authenticateUser, getUserData);
 
 const getAllStudioUsers = require('./routes/api/getAllStudioUsers');
 app.use('/get-all-studio-users', authenticateUser, getAllStudioUsers);
+
+const updateStudioUsers = require('./routes/api/updateStudioUsers');
+app.use('/update-studio-users', authenticateUser, updateStudioUsers);
 // =====================[ \ROUTES ]=====================
 
 
