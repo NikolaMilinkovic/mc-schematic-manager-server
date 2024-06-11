@@ -157,6 +157,9 @@ app.use('/update-studio-users', authenticateUser, updateStudioUsers);
 
 const removeStudioUser = require('./routes/api/removeStudioUser');
 app.use('/remove-studio-user', authenticateUser, removeStudioUser);
+
+const getStudioOwnerData = require('./routes/api/getStudioOwnerData');
+app.use('/get-studio-owner-data', authenticateUser, getStudioOwnerData);
 // =====================[ \ROUTES ]=====================
 
 

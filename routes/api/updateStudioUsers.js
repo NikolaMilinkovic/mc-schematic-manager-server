@@ -9,8 +9,16 @@ router.post('/', async (req, res) => {
   try {
     const sessionId = req.headers['authorization'];
     const studioUsers = req.body; // Array of objects
-    const user = await User.findOne({ session_id: sessionId })
-      .populate('studio.users'); // Studio Owner
+    let user;
+    if(req.user.role === 'owner'){
+      user = await User.findOne({ session_id: sessionId })
+        .populate('studio.users');
+    }
+    if(req.user.role === 'studio_user'){
+      user = await User.findOne({ _id: req.user.parent_user_id })
+        .populate('studio.users');
+    }
+
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }

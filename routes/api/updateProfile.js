@@ -6,6 +6,7 @@ const multer = require('multer');
 const upload = multer();
 const { body, check, validationResult } = require('express-validator');
 const User = require('../../models/user');
+const StudioUser = require('../../models/studioUser');
 const bcrypt = require('bcryptjs');
 
 
@@ -35,16 +36,29 @@ router.post('/',
       // console.log(`New_password: ${new_password}`)
     // =========================[\EXTRACT DATA]=========================
       // FIND USER IN DB
-      const user = await User.findOne({ _id: id });
+      const role = req.user.role;
+      let user;
+
+      if(role === 'owner'){
+        user = await User.findOne({ _id: id });
+      } 
+      if(role === 'studio_user'){
+        user = await StudioUser.findOne({ _id: id });
+      }
 
 
       const hashedPassword = await bcrypt.hash('smor', 10);
 
-      console.log('Logging password')
-      console.log(hashedPassword)
       // HANDLE USERNAME UPDATE
-      if(username !== user.username){
-        const findDuplicate = await User.findOne({ username: username });
+      if(username && username !== user.username){
+        let findDuplicate;
+        if(role === 'over'){
+          findDuplicate = await User.findOne({ username: username });
+        }
+        if(role === 'studio_user'){
+          findDuplicate = await StudioUser.findOne({ username: username });
+        }
+
         if(findDuplicate){
           return res.status(400).json({ message: 'This username is already taken, please provide a different username!' });
         } else {
@@ -54,7 +68,7 @@ router.post('/',
       }
 
       // HANDLE EMAIL UPDATE
-      if(email !== user.email){
+      if(email && email !== user.email){
         const findDuplicate = await User.findOne({ email: email });
         if(findDuplicate){
           return res.status(400).json({ message: 'This email is already registered, please provide a different email!' });
@@ -65,12 +79,11 @@ router.post('/',
       }
 
       // HANDLE PASSWORD UPDATE
-      if(old_password.trim()){
+      if(old_password && old_password.trim()){
         const match = await bcrypt.compare(old_password, user.password);
         if (match) {
           const hashedPassword = await bcrypt.hash(new_password, 10);
           user.password = hashedPassword;
-          console.log(hashedPassword);
           console.log(`> Updated password to ${hashedPassword}`);
         } else {
           return res.status(400).json({ message: 'Invalid password. Please try again.' });
@@ -78,7 +91,7 @@ router.post('/',
       }
 
       // HANDLE STUDIO NAME UPDATE
-      if(studio_name !== user.studio.name){
+      if(studio_name && studio_name !== user.studio.name){
         user.studio.name = studio_name;
         console.log(`> Updated studio name to ${studio_name}`);
       }
