@@ -1,4 +1,5 @@
 const User = require('../../models/user');
+const StudioUser = require('../../models/studioUser');
 
 async function authenticateUser(req, res, next) {
   try {
@@ -8,11 +9,20 @@ async function authenticateUser(req, res, next) {
     }
 
     const user = await User.findOne({ session_id: sessionId });
-    if (!user) {
+    let studioUser;
+    if(!user){
+      studioUser = await StudioUser.findOne({ session_id: sessionId });
+    }
+
+    if (!user && !studioUser) {
       return res.status(401).json({ message: 'Token is not valid' });
     }
 
-    req.user = user;
+    if(user){
+      req.user = user;
+    } else {
+      req.user = studioUser;
+    }
     next();
   } catch (err) {
     console.error('Error while comparing session id', err);

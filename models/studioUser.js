@@ -4,11 +4,12 @@ const Schema = mongoose.Schema;
 const StudioUserSchema = new Schema ({
   username: { type: String, required: [true, 'Please enter a valid username'], unique: [true, 'Username already registered'] },
   password: { type: String, required: [true, 'Please enter a valid password'] },
-  custom_id: { type: String, required: [true, 'Please enter a valid custom id'] },
+  custom_id: { type: String, required: [true, 'Please enter a valid custom id'], unique: [true, 'Custom id is already in use, remove & add the user again to refrech the custom_id']},
   role: { type: String, required: [true, 'Please enter a valid role'], default: 'studio_user' },
   session_id: { type: String, required: [true, 'Please provide a valid session id'], default: 'defaultSssionId' },
   created_at: { type: Date, required: true, default: Date.now() },
   parent_user_id: { type: Schema.Types.ObjectId, ref: 'User' },
+  schematics: [{ type: Schema.Types.ObjectId, ref: 'Schematic' }],
   avatar:{
     publicId:{
         type: String,

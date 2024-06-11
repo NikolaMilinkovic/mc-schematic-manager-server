@@ -3,24 +3,40 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/user');
+const StudioUser = require('./models/studioUser')
 
 // Passport Local Strategy
 passport.use(
   new LocalStrategy(async(username, password, done) => {
     try {
       const user = await User.findOne({ username: username });
-      if (!user) {
+      const studioUser = await StudioUser.findOne({ username: username });
+      if (!user && !studioUser) {
         console.log('NO USER FOUND')
         return done(null, false, { message: "Incorrect username" });
       }
 
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        console.log('WRONG PASSWORD')
-        return done(null, false, { message: "Incorrect password" });
+      if(user){
+        console.log('There is user')
+        const match = await bcrypt.compare(password, user.password);
+
+        if (!match) {
+          console.log('WRONG PASSWORD')
+          return done(null, false, { message: "Incorrect password" });
+        } else {
+          return done(null, user);
+        }
+      } else {
+        console.log('There is studioUser')
+        const match = await bcrypt.compare(password, studioUser.password);
+
+        if (!match) {
+          console.log('WRONG PASSWORD')
+          return done(null, false, { message: "Incorrect password" });
+        } else {
+          return done(null, studioUser);
+        }
       }
-      console.log('USER FOUND IN DB!')
-      return done(null, user);
     } catch (err) {
       return done(err);
     }
@@ -33,7 +49,10 @@ passport.serializeUser(function(user, done) {
 });
 passport.deserializeUser(async function(id, done) {
   try{
-    const user = User.findById(id);
+    let user = User.findById(id);
+    if(!user){
+      user = StudioUser.findById(id);
+    }
     done(null, user);
   } catch(err) {
     done(err);
@@ -52,19 +71,44 @@ function initializePassport(app) {
 }
 
 // Login Route Handler
-function loginHandler(req, res) {
-  const user = req.user;
-  const token = jwt.sign({ id: user._id, username: user.username }, 'potatoes', { expiresIn: '24h' });
-  res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
+async function loginHandler(req, res) {
+  try {
+    let user;
+    if (req.user.role === 'studio_user') {
+      const studioUser = await StudioUser.findById(req.user._id);
+      user = await User.findById(req.user.parent_user_id);
 
-  res.json({ message: 'Logged in successfully', token, user: user });
-  updateUserSessionId(user._id, token)
+      const token = jwt.sign({ id: studioUser._id, username: studioUser.username }, 'potatoes', { expiresIn: '24h' });
+      res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
+
+      res.json({ message: 'Logged in successfully', token, user, studioUser });
+      console.log('UPDATING FILIP SESSION')
+      updateUserSessionId(studioUser._id, token);
+    } else {
+      user = req.user;
+      const token = jwt.sign({ id: req.user._id, username: req.user.username }, 'potatoes', { expiresIn: '24h' });
+      res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
+      res.json({ message: 'Logged in successfully', token, user });
+      updateUserSessionId(req.user._id, token);
+    }
+    
+    
+  } catch (err) {
+    console.error('Error fetching parent user: ', err);
+    return res.status(500).json({ message: 'Error fetching parent user', error: err.message });
+  }
 }
 
 async function updateUserSessionId(id, token){
   const user = await User.findOne({ _id: id });
-  user.session_id = token;
-  await user.save();
+  if(!user){
+    const studioUser = await StudioUser.findOne({ _id: id });
+    studioUser.session_id = token;
+    await studioUser.save();
+  } else {
+    user.session_id = token;
+    await user.save();
+  }
 }
 
 // JWT Authentication Middleware

@@ -37,6 +37,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 const conn_string = process.env.DATABASE_URL;
 mongoose.connect(conn_string);
 const db = mongoose.connection;
+if(db){
+  console.log('> Connected to DB')
+}
 db.on('error', console.error.bind(console, 'mongo connection error'));
 // ===============[ \MongoDB connection ]=============== //
 
@@ -151,6 +154,9 @@ app.use('/get-all-studio-users', authenticateUser, getAllStudioUsers);
 
 const updateStudioUsers = require('./routes/api/updateStudioUsers');
 app.use('/update-studio-users', authenticateUser, updateStudioUsers);
+
+const removeStudioUser = require('./routes/api/removeStudioUser');
+app.use('/remove-studio-user', authenticateUser, removeStudioUser);
 // =====================[ \ROUTES ]=====================
 
 

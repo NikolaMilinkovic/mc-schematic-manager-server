@@ -31,13 +31,12 @@ router.post('/',
 
     const { originalname, buffer } = req.file;
     const { tags, schematicName, image } = req.body;
-    const sessionId = req.headers['authorization'];
-    // if(sessionId){
-    //   console.log('TOKEN WHEN UPLOADING SCHEMATIC IS')
-    //   console.log(sessionId);
-    // } else {
-    //   console.log('SESSION ID NOT FOUND!')
-    // }
+    let sessionId = req.headers['authorization'];
+    const currentUser = req.user;
+    if(currentUser.role === 'studio_user'){
+      const parentUser = await User.findOne({ _id: currentUser.parent_user_id })
+      sessionId = parentUser.session_id;
+    }
 
     try{
       // Check for existing schematic in DB

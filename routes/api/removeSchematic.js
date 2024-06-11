@@ -21,6 +21,7 @@ router.get('/:id',
       const id = req.params.id
       const cachedSchematic = await Schematic.findOne({ _id: id });
       const sessionId = req.headers['authorization'];
+      
       if (!cachedSchematic) {
         return res.status(404).send('Schematic not found');
       }
