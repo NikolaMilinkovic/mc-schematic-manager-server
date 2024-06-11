@@ -7,7 +7,6 @@ router.get('/',
   try{
     let user;
 
-    console.log(req.user)
     if(req.user.role === 'studio_user'){
       user = await User.findOne({ _id: req.user.parent_user_id });
       console.log(user)

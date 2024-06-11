@@ -160,6 +160,13 @@ app.use('/remove-studio-user', authenticateUser, removeStudioUser);
 
 const getStudioOwnerData = require('./routes/api/getStudioOwnerData');
 app.use('/get-studio-owner-data', authenticateUser, getStudioOwnerData);
+
+// COLLECTIONS
+const createCollection = require('./routes/api/collection/createCollection');
+app.use('/add-new-collection', authenticateUser, createCollection);
+
+const getCollections = require('./routes/api/collection/getCollections');
+app.use('/get-collections', authenticateUser, getCollections);
 // =====================[ \ROUTES ]=====================
 
 

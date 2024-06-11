@@ -11,6 +11,7 @@ const UserSchema = new Schema ({
   created_at: { type: Date, required: true, default: Date.now() },
   schematics: [{ type: Schema.Types.ObjectId, ref: 'Schematic' }],
   collections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }],
+  collection_tags: [{ type: String, unique: true }],
   avatar:{
     publicId:{
         type: String,

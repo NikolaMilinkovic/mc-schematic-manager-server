@@ -37,6 +37,7 @@ router.post('/',
       const parentUser = await User.findOne({ _id: currentUser.parent_user_id })
       sessionId = parentUser.session_id;
     }
+    console.log(image)
 
     try{
       // Check for existing schematic in DB
