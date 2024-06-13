@@ -167,6 +167,10 @@ app.use('/add-new-collection', authenticateUser, createCollection);
 
 const getCollections = require('./routes/api/collection/getCollections');
 app.use('/get-collections', authenticateUser, getCollections);
+
+// SINGLE COLLECTION
+const getCollectionById = require('./routes/api/collection/getCollection');
+app.use(`/get-collection/`, authenticateUser, getCollectionById);
 // =====================[ \ROUTES ]=====================
 
 
