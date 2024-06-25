@@ -48,13 +48,13 @@ passport.serializeUser(function(user, done) {
   done(null, user._id);
 });
 passport.deserializeUser(async function(id, done) {
-  try{
-    let user = User.findById(id);
-    if(!user){
-      user = StudioUser.findById(id);
+  try {
+    let user = await User.findById(id);
+    if (!user) {
+      user = await StudioUser.findById(id);
     }
     done(null, user);
-  } catch(err) {
+  } catch (err) {
     done(err);
   }
 });
@@ -81,17 +81,19 @@ async function loginHandler(req, res) {
       const token = jwt.sign({ id: studioUser._id, username: studioUser.username }, 'potatoes', { expiresIn: '24h' });
       res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
 
+      await updateUserSessionId(studioUser._id, token); // Update session_id before setting the cookie
+
       res.json({ message: 'Logged in successfully', token, user, studioUser });
       console.log('UPDATING FILIP SESSION')
-      updateUserSessionId(studioUser._id, token);
     } else {
       user = req.user;
       const token = jwt.sign({ id: req.user._id, username: req.user.username }, 'potatoes', { expiresIn: '24h' });
       res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
+
+      await updateUserSessionId(req.user._id, token); // Update session_id before setting the cookie
+
       res.json({ message: 'Logged in successfully', token, user });
-      updateUserSessionId(req.user._id, token);
     }
-    
     
   } catch (err) {
     console.error('Error fetching parent user: ', err);
@@ -123,6 +125,8 @@ function authenticateJWT(req, res, next) {
       next();
     });
   } else {
+    console.log('AuthenticateJWT failed.')
+    console.log('Token is:', token)
     res.sendStatus(401);
   }
 }

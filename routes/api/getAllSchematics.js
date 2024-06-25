@@ -1,5 +1,4 @@
 const express = require('express');
-const Schematic = require('../../models/schematic')
 const router = express.Router();
 const User = require('../../models/user');
 const StudioUser = require('../../models/studioUser');
@@ -22,7 +21,7 @@ router.get('/', async(req, res) => {
         .exec()
     }
 
-    res.status(200).json(userSchematics.schematics);
+    return res.status(200).json(userSchematics.schematics);
   } catch(err){
     console.log(err);
     res.status(500).send('Error while fetching schematics');

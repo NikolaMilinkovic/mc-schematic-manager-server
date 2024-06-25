@@ -46,9 +46,6 @@ router.post('/',
         user = await StudioUser.findOne({ _id: id });
       }
 
-
-      const hashedPassword = await bcrypt.hash('smor', 10);
-
       // HANDLE USERNAME UPDATE
       if(username && username !== user.username){
         let findDuplicate;

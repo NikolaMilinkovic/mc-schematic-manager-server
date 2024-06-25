@@ -102,7 +102,7 @@ app.post('/login', validateLoginForm,
     }
     next();
   },
-  passport.authenticate('local', { session: false }), authModule.loginHandler);
+passport.authenticate('local', { session: false }), authModule.loginHandler);
 
 const registerRoute = require('./routes/auth/registerUser');
 app.use('/register', registerRoute);
@@ -112,65 +112,74 @@ app.get('/protected', authModule.authenticateJWT, (req, res) => {
 });
 app.post('/logout', authModule.logoutHandler);
 
+// PASSWORD RESET ROUTE
+const passwordReset = require('./routes/auth/passwordReset');
+app.use(`/password-reset/`, passwordReset);
+
+const newPassword = require('./routes/auth/newPassword');
+app.use(`/new-password/`, newPassword);
+
 app.use(authenticateUser);
 const uploadRoute = require('./routes/api/faweUploadSchematic');
-app.use('/upload', authenticateUser, uploadRoute);
+app.use('/upload', uploadRoute);
 
 const uploadSchematic = require('./routes/api/uploadSchematic');
-app.use('/upload-schematic', authenticateUser, uploadSchematic)
+app.use('/upload-schematic', uploadSchematic)
 
 const updateSchematic = require('./routes/api/updateSchematic');
-app.use('/update-schematic/', authenticateUser, updateSchematic);
+app.use('/update-schematic/', updateSchematic);
 
 const getAllSchematics = require('./routes/api/getAllSchematics');
-app.use('/get-schematics', authenticateUser, getAllSchematics);
+app.use('/get-schematics', getAllSchematics);
 
 const getAllTags = require('./routes/api/getAllTags');
-app.use('/get-tags', authenticateUser, getAllTags);
+app.use('/get-tags', getAllTags);
 
 const getSchematicFile = require('./routes/api/getSchematicFile');
-app.use('/get-schematic-file/', authenticateUser, getSchematicFile);
+app.use('/get-schematic-file/', getSchematicFile);
 
 const getSchematic = require('./routes/api/getSchematic');
-app.use('/get-schematic/', authenticateUser, getSchematic);
+app.use('/get-schematic/', getSchematic);
 
 const getSchematicFAWEString = require('./routes/api/getSchematicFAWEString');
-app.use('/get-schematic-fawe-string/', authenticateUser, getSchematicFAWEString)
+app.use('/get-schematic-fawe-string/', getSchematicFAWEString)
 
 const removeSchematic = require('./routes/api/removeSchematic');
-app.use('/remove-schematic/', authenticateUser, removeSchematic)
+app.use('/remove-schematic/', removeSchematic)
 
 const validateSession = require('./routes/api/validateSession');
-app.use('/validate-session', authenticateUser, validateSession)
+app.use('/validate-session', validateSession)
 
 const updateProfile = require('./routes/api/updateProfile');
-app.use('/update-profile', authenticateUser, updateProfile);
+app.use('/update-profile', updateProfile);
 
 const getUserData = require('./routes/api/getUserData');
-app.use('/get-user-data', authenticateUser, getUserData);
+app.use('/get-user-data', getUserData);
 
 const getAllStudioUsers = require('./routes/api/getAllStudioUsers');
-app.use('/get-all-studio-users', authenticateUser, getAllStudioUsers);
+app.use('/get-all-studio-users', getAllStudioUsers);
 
 const updateStudioUsers = require('./routes/api/updateStudioUsers');
-app.use('/update-studio-users', authenticateUser, updateStudioUsers);
+app.use('/update-studio-users', updateStudioUsers);
 
 const removeStudioUser = require('./routes/api/removeStudioUser');
-app.use('/remove-studio-user', authenticateUser, removeStudioUser);
+app.use('/remove-studio-user', removeStudioUser);
 
 const getStudioOwnerData = require('./routes/api/getStudioOwnerData');
-app.use('/get-studio-owner-data', authenticateUser, getStudioOwnerData);
+app.use('/get-studio-owner-data', getStudioOwnerData);
 
 // COLLECTIONS
 const createCollection = require('./routes/api/collection/createCollection');
-app.use('/add-new-collection', authenticateUser, createCollection);
+app.use('/add-new-collection', createCollection);
 
 const getCollections = require('./routes/api/collection/getCollections');
-app.use('/get-collections', authenticateUser, getCollections);
+app.use('/get-collections', getCollections);
 
 // SINGLE COLLECTION
 const getCollectionById = require('./routes/api/collection/getCollection');
-app.use(`/get-collection/`, authenticateUser, getCollectionById);
+app.use(`/get-collection/`, getCollectionById);
+
+
 // =====================[ \ROUTES ]=====================
 
 
