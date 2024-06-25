@@ -22,10 +22,8 @@ router.patch('/', async(req, res) => {
 
 
       // SEND THE TOKEN TO THE USER EMAIL
-      // console.log(req.get('host'));
-      // const resetUrl = `${req.protocol}://${req.get('host')}/new-password/${resetToken}`;
-      // const refererUrl = req.get('Referer');
-      // const referer = new URL(refererUrl);
+      const refererUrl = req.get('Referer');
+      const referer = new URL(refererUrl);
 
       const resetUrl = `${referer.protocol}//${process.env.FRONT_DOMAIN}/set-new-password/${resetToken}`;
       const message = `We have received a password reset request. Please use the below link to reset your password.\n\n
