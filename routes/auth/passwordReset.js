@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const sendEmail = require('../../utils/email');
 const User = require('../../models/user');
 const generateToken = require('../../utils/generateToken.js');
+require('dotenv').config();
 
 router.patch('/', async(req, res) => {
   try{
@@ -23,10 +24,10 @@ router.patch('/', async(req, res) => {
       // SEND THE TOKEN TO THE USER EMAIL
       // console.log(req.get('host'));
       // const resetUrl = `${req.protocol}://${req.get('host')}/new-password/${resetToken}`;
-      const refererUrl = req.get('Referer');
-      const referer = new URL(refererUrl);
+      // const refererUrl = req.get('Referer');
+      // const referer = new URL(refererUrl);
 
-      const resetUrl = `${referer.protocol}//${referer.hostname}:${referer.port}/set-new-password/${resetToken}`;
+      const resetUrl = `${referer.protocol}//${process.env.FRONT_DOMAIN}/set-new-password/${resetToken}`;
       const message = `We have received a password reset request. Please use the below link to reset your password.\n\n
       ${resetUrl}`;
 
