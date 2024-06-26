@@ -20,8 +20,10 @@ router.post('/',
       if(existingUsername){
         return res.status(409).json({ message: "Username is already in use. Please choose a different username." });
       }
-      const existingEmail = await User.findOne({ username: data.email });
+
+      const existingEmail = await User.findOne({ email: data.email });
       if(existingEmail){
+        console.log('EMAIL IN USE RETURNING ERROR.')
         return res.status(409).json({ message: "Email is already in use." });
       }
   

@@ -179,6 +179,12 @@ app.use('/get-collections', getCollections);
 const getCollectionById = require('./routes/api/collection/getCollection');
 app.use(`/get-collection/`, getCollectionById);
 
+const updateCollection = require('./routes/api/collection/updateCollection');
+app.use(`/update-collection/`, updateCollection);
+
+const removeCollection = require('./routes/api/collection/removeCollection');
+app.use(`/remove-collection/`, removeCollection);
+
 
 // =====================[ \ROUTES ]=====================
 

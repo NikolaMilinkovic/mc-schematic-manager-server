@@ -50,8 +50,6 @@ router.post('/',
         });
       }
       console.log('> Added New Tags')
-      console.log(newTags)
-      console.log(user.collection_tags)
       // HANDLE AVATAR UPDATE
 
       let imageData = {}
@@ -76,6 +74,10 @@ router.post('/',
       });
       const collection = await newCollection.save();
       console.log('> Added new collection')
+
+      if(!user){
+        console.log('> ERROR - USER NOT FOUND!')
+      }
 
       // Add the new collection _id to user.collections
       user.collections.push(collection._id);

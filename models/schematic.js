@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const SchematicSchema = new Schema ({
   name: { type: String, required: true },
-  tags: [String],
+  tags: [{ type: String }],
   created_at: { type: Date, required: true, default: Date.now() },
   original_file_name: { type: String },
   file: { type: Buffer, required: true },
