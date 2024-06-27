@@ -50,8 +50,19 @@ router.post('/:id',
 
       // User CollectionTags update
       console.log('> Updating user')
-      const user = await User.findById(req.user._id);
-      console.log('> User found, updating tags')
+      let user;
+      if(req.user.role === 'studio_user'){
+        console.log('> User found, updating tags');
+        user = await User.findById(req.user.parent_user_id);
+      }
+      if(req.user.role === 'owner'){
+        console.log('> User found, updating tags');
+        user = await User.findById(req.user._id);
+      }
+      if(!user){
+        console.log('Error: No user found.');
+        return res.status(404).json({ message: 'User id not found.', status: 404 });
+      }
         // const newTags = tags.filter(tag => !user.collection_tags.includes(tag));
         // if(newTags.length > 0){
         //   console.log('> Adding new tags')
