@@ -52,14 +52,15 @@ router.post('/:id',
       console.log('> Updating user')
       const user = await User.findById(req.user._id);
       console.log('> User found, updating tags')
-        const newTags = tags.filter(tag => !user.collection_tags.includes(tag));
-        if(newTags.length > 0){
-          console.log('> Adding new tags')
-          newTags.forEach(tag => {
-            console.log('> Pushing tag..', tag);
-            user.collection_tags.push(tag);
-          });
-        }
+        // const newTags = tags.filter(tag => !user.collection_tags.includes(tag));
+        // if(newTags.length > 0){
+        //   console.log('> Adding new tags')
+        //   newTags.forEach(tag => {
+        //     console.log('> Pushing tag..', tag);
+        //     user.collection_tags.push(tag);
+        //   });
+        // }
+      user.collection_tags = tags;
 
       console.log('> Saving user & collection')
       user.save();
