@@ -76,7 +76,7 @@ router.post('/',
       }
 
       // HANDLE PASSWORD UPDATE
-      if(old_password && old_password.trim()){
+      if(typeof old_password === 'string' && old_password.length > 0 && old_password.trim().length > 0){
         const match = await bcrypt.compare(old_password, user.password);
         if (match) {
           const hashedPassword = await bcrypt.hash(new_password, 10);

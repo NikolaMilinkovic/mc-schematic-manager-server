@@ -30,7 +30,8 @@ router.post('/',
 
 
     const { originalname, buffer } = req.file;
-    const { tags, schematicName, image } = req.body;
+    const { tags, schematicName, image, blurHash, blurHashWidth, blurHashHeight } = req.body;
+
     let sessionId = req.headers['authorization'];
     const currentUser = req.user;
     if(currentUser.role === 'studio_user'){
@@ -73,8 +74,15 @@ router.post('/',
       if(image){
           const results = await uploadToCloudinary(image, "mc-schematic-manager-images")
           imageData = results
-          console.log('Finish with Cloudinary successfully')
+          console.log('Finished with Main Image > Cloudinary successfully');
       }
+      // let smallImageData = {}
+      // if(imageSmall){
+      //   console.log(imageSmall);
+      //   const results = await uploadToCloudinary(imageSmall, "mc-schematic-manager-images");
+      //   smallImageData = results;
+      //   console.log('Finished with Small Image > Cloudinary successfully')
+      // }
 
       const newSchematic = new Schematic({
         name: schematicName,
@@ -82,9 +90,26 @@ router.post('/',
         original_file_name: originalname,
         file: buffer,
         fawe_string: `//schematic load ${FAWE.type} url:${FAWE.upload}`,
-        image: imageData
+        image: imageData,
+        blur_hash: {
+          hash: blurHash,
+          width: blurHashWidth,
+          height: blurHashHeight
+        }
       });
-
+        // TO BE RETURNED TO SCHEMA IF NEEDED
+        // image_small:{
+        //   publicId:{
+        //       type: String,
+        //       required: true,
+        //   },
+        //   url: {
+        //       type: String,
+        //       required: true,
+        //   }
+        // },
+        // image_small: smallImageData
+      console.log('Saving new schematic now.')
       await newSchematic.save();
       console.log('Schematic added to DB')
 
@@ -100,7 +125,7 @@ router.post('/',
 
     } catch (error) {
       // console.log(error);
-      res.status(500).send('Error uploading file: ' + error.message);
+      res.status(500).json({ message: `There was an error uploading the schematic ${error.message}` })
     }
   }
 );

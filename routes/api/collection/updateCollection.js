@@ -25,8 +25,11 @@ router.post('/:id',
     try{
     // =========================[EXTRACT DATA]=========================
       const id = req.params.id
-      const { avatar, name } = req.body;
+      const { avatar, name, blurHash, blurHashWidth, blurHashHeight } = req.body;
       const tags = req.body.tags.split(',').map(tag => tag.trim());
+      console.log(blurHash)
+      console.log(blurHashWidth)
+      console.log(blurHashHeight)
     // =========================[\EXTRACT DATA]=========================
 
     console.log('> Fetching collection by ID')
@@ -47,6 +50,13 @@ router.post('/:id',
       console.log('> Setting collection name & tags')
       collection.name = name;
       collection.tags = tags;
+      if (blurHash) {
+        collection.blur_hash = {
+          hash: blurHash,
+          width: blurHashWidth,
+          height: blurHashHeight
+        };
+      }
 
       // User CollectionTags update
       console.log('> Updating user')

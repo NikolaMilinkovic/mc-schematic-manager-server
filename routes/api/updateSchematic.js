@@ -14,6 +14,9 @@ router.post('/:id',
     check('id').notEmpty().withMessage('ID parameter must not be empty!').escape(),
     body('tags').notEmpty().withMessage('Tags are required'),
     body('schematicName').notEmpty().withMessage('Schematic name is required').escape(),
+    body('blurHash').optional().escape(),
+    body('blurHashWidth').optional().escape(),
+    body('blurHashHeight').optional().escape(),
   ],
   async(req, res) => {
     // Validation of input
@@ -43,12 +46,19 @@ router.post('/:id',
         image = req.body.image;
       }
       // Get Schematic Name and Tags
-      const { tags, schematicName } = req.body;
+      const { tags, schematicName, blurHash, blurHashWidth, blurHashHeight } = req.body;
     // =========================[\EXTRACT DATA]=========================
 
       // Update Tags and Name
       schematic.tags = tags.split(',');
       schematic.name = schematicName;
+      if (blurHash) {
+        schematic.blur_hash = {
+          hash: blurHash,
+          width: blurHashWidth,
+          height: blurHashHeight
+        };
+      }
 
       if(req.file){
         const FAWE = await getFAWEString(originalname, buffer, req, res);

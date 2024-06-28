@@ -16,6 +16,17 @@ const CollectionSchema = new Schema ({
         type: String,
         required: true,
     }
+  },
+  blur_hash:{
+    hash:{
+        type: String,
+    },
+    width:{
+        type: Number,
+    },
+    height:{
+        type: Number,
+    }
   }
 })
 

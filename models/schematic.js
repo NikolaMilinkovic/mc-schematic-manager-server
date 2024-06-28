@@ -18,7 +18,18 @@ const SchematicSchema = new Schema ({
         type: String,
         required: true,
     }
-}
+  },
+  blur_hash:{
+    hash:{
+        type: String,
+    },
+    width:{
+        type: Number,
+    },
+    height:{
+        type: Number,
+    }
+  }
 })
 
 SchematicSchema.index({ name: 1 });

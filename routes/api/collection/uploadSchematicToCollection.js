@@ -31,7 +31,7 @@ router.post('/:id',
 
     const collectionId = req.params.id
     const { originalname, buffer } = req.file;
-    const { tags, schematicName, image } = req.body;
+    const { tags, schematicName, image, blurHash, blurHashWidth, blurHashHeight } = req.body;
     let sessionId = req.headers['authorization'];
     const currentUser = req.user;
     if(currentUser.role === 'studio_user'){
@@ -82,7 +82,12 @@ router.post('/:id',
         original_file_name: originalname,
         file: buffer,
         fawe_string: `//schematic load ${FAWE.type} url:${FAWE.upload}`,
-        image: imageData
+        image: imageData,
+        blur_hash: {
+          hash: blurHash,
+          width: blurHashWidth,
+          height: blurHashHeight
+        }
       });
 
       await newSchematic.save();
