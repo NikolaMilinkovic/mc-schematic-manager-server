@@ -13,13 +13,13 @@ router.get('/', async(req, res) => {
     if(userRole && userRole === 'studio_user'){
       const studioUser = await StudioUser.findOne({ session_id: sessionId })
       userSchematics = await User.findOne({ _id: studioUser.parent_user_id })
-        .select('-file')
-        .populate('schematics', '-file')
+        .select('-file -created_at -last_updated')
+        .populate('schematics', '-file -created_at -last_updated')
         .exec()
     } else {
       userSchematics = await User.findOne({ session_id: sessionId })
-        .select('-file')
-        .populate('schematics', '-file')
+        .select('-file -created_at -last_updated')
+        .populate('schematics', '-file -created_at -last_updated')
         .exec()
     }
 
