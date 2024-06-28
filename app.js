@@ -188,6 +188,9 @@ app.use(`/remove-collection/`, removeCollection);
 const uploadSchematicToCollection = require('./routes/api/collection/uploadSchematicToCollection');
 app.use(`/upload-schematic-to-collection/`, uploadSchematicToCollection);
 
+const removeSchematicFromCollection = require('./routes/api/collection/removeSchematicFromCollection');
+app.use(`/remove-schematic-from-collection/`, removeSchematicFromCollection);
+
 
 // =====================[ \ROUTES ]=====================
 

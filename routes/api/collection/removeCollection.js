@@ -12,20 +12,31 @@ router.post('/:id',
       const id = req.params.id
       const cachedCollection = await Collection.findOne({ _id: id });
       const sessionId = req.headers['authorization'];
+      let user;
+
+      // Handle user
+      if(req.user.role === 'owner'){
+        user = await User.findOneAndUpdate(
+          { session_id: sessionId },
+          { $pull: { collections: id } },
+          { new: true }
+        )
+      } else {
+        user = await User.findOneAndUpdate(
+          { _id: req.user.parent_user_id },
+          { $pull: { collections: id } },
+          { new: true }
+        )
+      }
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
       
       if (!cachedCollection) {
         return res.status(404).send('Collection not found');
       }
 
-      // Handle user
-      const user = await User.findOneAndUpdate(
-        { session_id: sessionId },
-        { $pull: { collections: id } },
-        { new: true }
-      )
-      if (!user) {
-        return res.status(404).send('User not found');
-      }
+
 
       // Handle collection
       const collection = await Collection.findOneAndDelete({ _id: id });
