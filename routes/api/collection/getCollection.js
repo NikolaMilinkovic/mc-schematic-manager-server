@@ -12,7 +12,8 @@ router.get('/:id',
     console.log('LOGGING THE ID')
     console.log(id);
     const collection = await Collection.findOne({ _id: id })
-      .populate('schematics');
+      .select('-file -created_at -last_updated')
+      .populate('schematics', '-file -created_at -last_updated')
 
     if (!collection) {
       return res.status(404).json({ message: `Collection with ID: ${id} not found.` });
