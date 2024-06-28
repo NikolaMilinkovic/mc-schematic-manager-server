@@ -191,6 +191,12 @@ app.use(`/upload-schematic-to-collection/`, uploadSchematicToCollection);
 const removeSchematicFromCollection = require('./routes/api/collection/removeSchematicFromCollection');
 app.use(`/remove-schematic-from-collection/`, removeSchematicFromCollection);
 
+const getCollectionsList = require('./routes/api/collection/getCollectionsList');
+app.use(`/get-collections-list/`, getCollectionsList);
+
+const getSchematicsCurrentCollections = require('./routes/api/getSchematicsCurrentCollections');
+app.use(`/get-schematcis-collection-list/`, getSchematicsCurrentCollections);
+
 
 // =====================[ \ROUTES ]=====================
 
