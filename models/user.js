@@ -17,12 +17,12 @@ const UserSchema = new Schema ({
     publicId:{
         type: String,
         required: true,
-        default: 'mc-schematic-manager-images/xbcldkvm8tpj3dri4jgg'
+        default: 'mc-schematic-manager-images/zhpfvcgqrtdu6wsys81o'
     },
     url: {
         type: String,
         required: true,
-        default: 'https://res.cloudinary.com/dm7ymtpki/image/upload/v1717774667/mc-schematic-manager-images/xbcldkvm8tpj3dri4jgg.jpg'
+        default: 'https://res.cloudinary.com/dm7ymtpki/image/upload/v1719702018/mc-schematic-manager-images/zhpfvcgqrtdu6wsys81o.jpg'
     },
   },
   studio: {
