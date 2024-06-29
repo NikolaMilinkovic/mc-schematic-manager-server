@@ -7,6 +7,7 @@ const multer = require('multer');
 const upload = multer();
 const { getFAWEString } = require('../../FAWE_string');
 const { body, check, validationResult } = require('express-validator');
+const Collection = require('../../models/collection')
 
 router.post('/:id',
   upload.single('schematicFile'),
@@ -46,8 +47,68 @@ router.post('/:id',
         image = req.body.image;
       }
       // Get Schematic Name and Tags
-      const { tags, schematicName, blurHash, blurHashWidth, blurHashHeight } = req.body;
+      const { 
+        tags,
+        schematicName, 
+        blurHash, 
+        blurHashWidth, 
+        blurHashHeight, 
+        updatedCollections, 
+        removedCollections 
+      } = req.body;
+
+      console.log('Updated Collections are:')
+      console.log(updatedCollections)
+
+      console.log('Removed Collections are:')
+      console.log(removedCollections)
     // =========================[\EXTRACT DATA]=========================
+
+    // Handle removing schematic from collections
+      async function processRemovedCollections(removedCollections) {
+        try {
+          for (const collection of removedCollections) {
+            const foundCollection = await Collection.findById(collection.collection_id);
+            if (!foundCollection) {
+              console.log(`Collection with ID ${collection.collection_id} not found.`);
+              continue;
+            }
+      
+            // Update collection.schematics by filtering out the schematic ID ('id')
+            foundCollection.schematics = foundCollection.schematics.filter(schematic => String(schematic._id) !== id);
+            await foundCollection.save();
+          }
+        } catch (err) {
+          console.error('Error removing schematic from collection.', err);
+        }
+      }
+      if (removedCollections) {
+        processRemovedCollections(JSON.parse(removedCollections));
+      }
+
+      // Handle adding schematic to collections
+      async function processAddToCollections(updatedCollections){
+        try{
+          for(const collection of updatedCollections){
+            const foundCollection = await Collection.findByIdAndUpdate(
+              collection.collection_id,
+              {$push: {schematics: id}},
+              {new: true}
+            );
+
+            if (!foundCollection) {
+              console.log(`Collection with ID ${collection.collection_id} not found.`);
+              return null;
+            }
+            return foundCollection;
+          }
+        } catch(err){
+          console.error('Error adding schematic to collection', err);
+        }
+      }
+      if(updatedCollections){
+        processAddToCollections(JSON.parse(updatedCollections))
+      }
 
       // Update Tags and Name
       schematic.tags = tags.split(',');

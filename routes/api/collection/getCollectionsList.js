@@ -30,8 +30,8 @@ router.get('/',
           select: 'name'
         });
       collections = user.collections.map((collection) => ({
-        _id: collection._id,
-        name: collection.name
+        collection_id: collection._id,
+        collection_name: collection.name
       }));
     }
 
