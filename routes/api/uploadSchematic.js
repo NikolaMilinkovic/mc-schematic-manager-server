@@ -11,6 +11,7 @@ const { uploadToCloudinary } = require('../../services/cloudinary');
 const { getFAWEString } = require('../../FAWE_string');
 const { body, validationResult } = require('express-validator');
 const User = require('../../models/user');
+const Collection = require('../../models/collection')
 
 const upload = multer();
 router.post('/', 
@@ -30,7 +31,9 @@ router.post('/',
 
 
     const { originalname, buffer } = req.file;
-    const { tags, schematicName, image, blurHash, blurHashWidth, blurHashHeight } = req.body;
+    const { tags, schematicName, image, blurHash, blurHashWidth, blurHashHeight, collectionsList } = req.body;
+
+    console.log(collectionsList)
 
     let sessionId = req.headers['authorization'];
     const currentUser = req.user;
@@ -119,8 +122,31 @@ router.post('/',
         { $push: { schematics: newSchematic._id } },
         { new: true }
       )
-      // console.log('User updated with new schematic:', user);
 
+      // Handle adding schematic to collections
+      console.log('> Adding schematic to collections');
+      async function processAddToCollections(collectionsList) {
+        try {
+          for (const collection of collectionsList) {
+            const foundCollection = await Collection.findByIdAndUpdate(
+              collection.collection_id,
+              {$push: {schematics: newSchematic._id}},
+              {new: true}
+            );
+
+            if (!foundCollection) {
+              console.log(`Collection with ID ${collection.collection_id} not found.`);
+            }
+          }
+        } catch (err) {
+          console.error('Error adding schematic to collection', err);
+        }
+      }
+      if(collectionsList){
+        await processAddToCollections(JSON.parse(collectionsList))
+      }
+
+      console.log('> Finished adding schematic to collections')
       res.status(201).send('File uploaded and stored successfully');
 
     } catch (error) {

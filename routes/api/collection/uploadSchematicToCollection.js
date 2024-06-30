@@ -31,7 +31,7 @@ router.post('/:id',
 
     const collectionId = req.params.id
     const { originalname, buffer } = req.file;
-    const { tags, schematicName, image, blurHash, blurHashWidth, blurHashHeight } = req.body;
+    const { tags, schematicName, image, blurHash, blurHashWidth, blurHashHeight, collectionsList } = req.body;
     let sessionId = req.headers['authorization'];
     const currentUser = req.user;
     if(currentUser.role === 'studio_user'){
@@ -73,7 +73,6 @@ router.post('/:id',
       if(image){
           const results = await uploadToCloudinary(image, "mc-schematic-manager-images")
           imageData = results
-          console.log('Finish with Cloudinary successfully')
       }
 
       const newSchematic = new Schematic({
@@ -98,14 +97,28 @@ router.post('/:id',
         { $push: { schematics: newSchematic._id } },
         { new: true }
       )
-      const collection = await Collection.findByIdAndUpdate(
-        collectionId,
-        { $push: { schematics: newSchematic._id } },
-        { new: true }
-      );
 
-      if (!collection) {
-        return res.status(404).send('Collection not found.');
+      // Handle adding schematic to collections
+      async function processAddToCollections(collectionsList) {
+        try {
+          for (const collection of collectionsList) {
+            const foundCollection = await Collection.findByIdAndUpdate(
+              collection.collection_id,
+              { $push: { schematics: newSchematic._id } },
+              { new: true }
+            );
+
+            if (!foundCollection) {
+              console.log(`Collection with ID ${collection.collection_id} not found.`);
+            }
+          }
+        } catch (err) {
+          console.error('Error adding schematic to collection', err);
+        }
+      }
+
+      if (collectionsList) {
+        await processAddToCollections(JSON.parse(collectionsList));
       }
 
       res.status(201).send('File uploaded and stored successfully');

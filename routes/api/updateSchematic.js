@@ -83,13 +83,13 @@ router.post('/:id',
         }
       }
       if (removedCollections) {
-        processRemovedCollections(JSON.parse(removedCollections));
+        await processRemovedCollections(JSON.parse(removedCollections));
       }
 
       // Handle adding schematic to collections
-      async function processAddToCollections(updatedCollections){
-        try{
-          for(const collection of updatedCollections){
+      async function processAddToCollections(updatedCollections) {
+        try {
+          for (const collection of updatedCollections) {
             const foundCollection = await Collection.findByIdAndUpdate(
               collection.collection_id,
               {$push: {schematics: id}},
@@ -98,16 +98,14 @@ router.post('/:id',
 
             if (!foundCollection) {
               console.log(`Collection with ID ${collection.collection_id} not found.`);
-              return null;
             }
-            return foundCollection;
           }
-        } catch(err){
+        } catch (err) {
           console.error('Error adding schematic to collection', err);
         }
       }
       if(updatedCollections){
-        processAddToCollections(JSON.parse(updatedCollections))
+        await processAddToCollections(JSON.parse(updatedCollections))
       }
 
       // Update Tags and Name
