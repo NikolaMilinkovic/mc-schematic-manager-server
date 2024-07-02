@@ -20,6 +20,7 @@ const authenticateUser = require('./routes/api/authenticateUser');
 
 const app = express();
 
+// ===============[ CORS Options ]=============== //
 // app.use(cors());
 const allowedOrigins = [
   'https://mc-schematic-manager.vercel.app',
@@ -35,6 +36,7 @@ const corsOptions = {
   },
 };
 app.use(cors(corsOptions));
+// ===============[ \CORS Options ]=============== //
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
