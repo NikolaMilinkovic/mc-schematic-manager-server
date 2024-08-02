@@ -136,6 +136,7 @@ const newPassword = require('./routes/auth/newPassword');
 app.use(`/new-password/`, newPassword);
 
 app.use(authenticateUser);
+
 const uploadRoute = require('./routes/api/faweUploadSchematic');
 app.use('/upload', uploadRoute);
 

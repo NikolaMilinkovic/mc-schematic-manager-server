@@ -42,7 +42,7 @@ async(req, res) => {
       const tempFilePath = path.join(uploadsDir, schematic.original_file_name);
       fs.writeFileSync(tempFilePath, schematic.file); // Moze biti greska
 
-      const launchOptions = { headless: true };
+      const launchOptions = { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] };
       const browser = await puppeteer.launch(launchOptions);
       const page = await browser.newPage();
 

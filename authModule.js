@@ -84,7 +84,6 @@ async function loginHandler(req, res) {
       await updateUserSessionId(studioUser._id, token); // Update session_id before setting the cookie
 
       res.json({ message: 'Logged in successfully', token, user, studioUser });
-      console.log('UPDATING FILIP SESSION')
     } else {
       user = req.user;
       const token = jwt.sign({ id: req.user._id, username: req.user.username }, 'potatoes', { expiresIn: '24h' });
