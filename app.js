@@ -24,6 +24,7 @@ const app = express();
 // app.use(cors());
 const allowedOrigins = [
   'https://mc-schematic-manager.vercel.app',
+  'http://localhost:5173'
 ];
 
 const corsOptions = {

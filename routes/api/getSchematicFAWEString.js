@@ -51,7 +51,7 @@ async(req, res) => {
       await page.waitForSelector('input[type=file]');
       const inputUploadHandle = await page.$('input[type=file]');
 
-      await inputUploadHandle.uploadFile(tempFilePath);
+      await inputUploadHandle.uploadFile(schematic.file);
 
       let redirectUrl;
       // Listen for response events to track redirects
@@ -102,6 +102,7 @@ async(req, res) => {
       }
     } 
 
+    // Return string if its under 30 days old
     else {
       console.log('> FAWE string returned successfully.')
       // console.log(`Returning to user: ${schematic.fawe_string}`)
