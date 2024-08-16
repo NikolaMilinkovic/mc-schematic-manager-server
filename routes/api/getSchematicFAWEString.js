@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const { getFAWEString } = require('../../FAWE_string');
 const { check, validationResult } = require('express-validator');
 
 
@@ -35,6 +36,7 @@ async(req, res) => {
     // ===============[UPDATE THE STRING IF OUTDATED]===============
     if(daysDifference > 30) {
       // Store files temporarily
+      console.log('Starting getFAWEString...');
       const uploadsDir = path.join(__dirname, '../../uploads');
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir);
@@ -43,6 +45,8 @@ async(req, res) => {
       fs.writeFileSync(tempFilePath, schematic.file); // Moze biti greska
 
       const launchOptions = { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+
+      // Launch puppeteer
       const browser = await puppeteer.launch(launchOptions);
       const page = await browser.newPage();
 
@@ -51,7 +55,7 @@ async(req, res) => {
       await page.waitForSelector('input[type=file]');
       const inputUploadHandle = await page.$('input[type=file]');
 
-      await inputUploadHandle.uploadFile(schematic.file);
+      await inputUploadHandle.uploadFile(tempFilePath);
 
       let redirectUrl;
       // Listen for response events to track redirects
@@ -74,7 +78,7 @@ async(req, res) => {
 
       // PARSE THE STRING
       const parseUrl = new URL(
-        `http://localhost:3000/${displayUrl.toString()}`,
+        `http://localhost:3000/${redirectUrl.toString()}`,
       );
       const upload = parseUrl.searchParams.get('upload');
       const type = parseUrl.searchParams.get('type');
@@ -102,7 +106,6 @@ async(req, res) => {
       }
     } 
 
-    // Return string if its under 30 days old
     else {
       console.log('> FAWE string returned successfully.')
       // console.log(`Returning to user: ${schematic.fawe_string}`)
