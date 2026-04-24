@@ -65,6 +65,11 @@ async function connectDB() {
 }
 
 connectDB();
+
+const { runImg1StartupTest } = require("./controllers/openai/openAI_Controller");
+if (process.env.RUN_OPENAI_STARTUP_TEST === "true") {
+  // runImg1StartupTest();
+}
 // ===============[ \MongoDB connection ]=============== //
 
 async function addUserOnStartup(username, plainPassword) {
@@ -224,6 +229,9 @@ app.use(`/get-collections-list/`, getCollectionsList);
 
 const getSchematicsCurrentCollections = require("./routes/api/getSchematicsCurrentCollections");
 app.use(`/get-schematcis-collection-list/`, getSchematicsCurrentCollections);
+
+const openAIRouter = require("./routers/openAI_router");
+app.use("/openai", openAIRouter);
 
 // =====================[ \ROUTES ]=====================
 
