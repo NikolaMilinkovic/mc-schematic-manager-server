@@ -66,7 +66,9 @@ async function connectDB() {
 
 connectDB();
 
-const { runImg1StartupTest } = require("./controllers/openai/openAI_Controller");
+const {
+  runImg1StartupTest,
+} = require("./controllers/openai/openAI_Controller");
 if (process.env.RUN_OPENAI_STARTUP_TEST === "true") {
   // runImg1StartupTest();
 }
@@ -232,6 +234,9 @@ app.use(`/get-schematcis-collection-list/`, getSchematicsCurrentCollections);
 
 const openAIRouter = require("./routers/openAI_router");
 app.use("/openai", openAIRouter);
+
+const addSchematicsToCollection = require("./routes/api/collection/addSchematicsToCollection");
+app.use("/add-schematics-to-collection/", addSchematicsToCollection);
 
 // =====================[ \ROUTES ]=====================
 
