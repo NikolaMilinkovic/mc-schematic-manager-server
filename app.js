@@ -11,9 +11,6 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
-const jwt = require("jsonwebtoken");
-const { body, validationResult } = require("express-validator");
 const authModule = require("./authModule");
 const crypto = require("crypto");
 const authenticateUser = require("./routes/api/authenticateUser");
@@ -66,12 +63,6 @@ async function connectDB() {
 
 connectDB();
 
-const {
-  runImg1StartupTest,
-} = require("./controllers/openai/openAI_Controller");
-if (process.env.RUN_OPENAI_STARTUP_TEST === "true") {
-  // runImg1StartupTest();
-}
 // ===============[ \MongoDB connection ]=============== //
 
 async function addUserOnStartup(username, plainPassword) {
@@ -110,7 +101,7 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.DATABASE_URL,
-      ttl: 365 * 24 * 60 * 60 * 1000, // session TTL (optional)
+      ttl: 365 * 24 * 60 * 60 * 1000,
     }),
   }),
 );
@@ -120,67 +111,15 @@ authModule.initializePassport(app);
 // =====================[ \PASSPORT/JWT AUTHENTICATION ]=====================
 
 // =====================[ ROUTES ]=====================
-const validateLoginForm = [
-  body("username").notEmpty().withMessage("Username is required").escape(),
-  body("password").notEmpty().withMessage("Password is required"),
-];
-app.post(
-  "/login",
-  validateLoginForm,
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  },
-  passport.authenticate("local", { session: false }),
-  authModule.loginHandler,
-);
+// ===== AUTH ROUTES (UNPROTECTED - before authenticateUser middleware) =====
+const authRouter = require("./routers/auth_router");
+app.use("/auth", authRouter);
 
-const registerRoute = require("./routes/auth/registerUser");
-app.use("/register", registerRoute);
-
-app.get("/protected", authModule.authenticateJWT, (req, res) => {
-  res.json({ message: "You are authenticated", user: req.user });
-});
-app.post("/logout", authModule.logoutHandler);
-
-// PASSWORD RESET ROUTE
-const passwordReset = require("./routes/auth/passwordReset");
-app.use(`/password-reset/`, passwordReset);
-
-const newPassword = require("./routes/auth/newPassword");
-app.use(`/new-password/`, newPassword);
-
+// ===== PROTECTED ROUTES =====
 app.use(authenticateUser);
 
-const uploadRoute = require("./routes/api/faweUploadSchematic");
-app.use("/upload", uploadRoute);
-
-const uploadSchematic = require("./routes/api/uploadSchematic");
-app.use("/upload-schematic", uploadSchematic);
-
-const updateSchematic = require("./routes/api/updateSchematic");
-app.use("/update-schematic/", updateSchematic);
-
-const getAllSchematics = require("./routes/api/getAllSchematics");
-app.use("/get-schematics", getAllSchematics);
-
-const getAllTags = require("./routes/api/getAllTags");
-app.use("/get-tags", getAllTags);
-
-const getSchematicFile = require("./routes/api/getSchematicFile");
-app.use("/get-schematic-file/", getSchematicFile);
-
-const getSchematic = require("./routes/api/getSchematic");
-app.use("/get-schematic/", getSchematic);
-
-const getSchematicFAWEString = require("./routes/api/getSchematicFAWEString");
-app.use("/get-schematic-fawe-string/", getSchematicFAWEString);
-
-const removeSchematic = require("./routes/api/removeSchematic");
-app.use("/remove-schematic/", removeSchematic);
+const schematicsRouter = require("./routers/schematics_router");
+app.use("/schematics", schematicsRouter);
 
 const validateSession = require("./routes/api/validateSession");
 app.use("/validate-session", validateSession);
@@ -228,9 +167,6 @@ app.use(`/remove-schematic-from-collection/`, removeSchematicFromCollection);
 
 const getCollectionsList = require("./routes/api/collection/getCollectionsList");
 app.use(`/get-collections-list/`, getCollectionsList);
-
-const getSchematicsCurrentCollections = require("./routes/api/getSchematicsCurrentCollections");
-app.use(`/get-schematcis-collection-list/`, getSchematicsCurrentCollections);
 
 const openAIRouter = require("./routers/openAI_router");
 app.use("/openai", openAIRouter);

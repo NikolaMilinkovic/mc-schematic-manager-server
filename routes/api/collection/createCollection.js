@@ -5,11 +5,11 @@ const User = require('../../../models/user')
 const Collection = require('../../../models/collection')
 const { uploadToCloudinary } = require('../../../services/cloudinary');
 const path = require('path');
+const { normalizeTags } = require('../../../utils/tags');
 // const path = require('path');
 // const fs = require('fs');
 // const puppeteer = require('puppeteer');
 // const router = express.Router();
-// const Tags = require('../../models/tags');
 // const Schematic = require('../../models/schematic');
 // require('dotenv').config();
 // const { getFAWEString } = require('../../FAWE_string');
@@ -42,7 +42,7 @@ router.post('/',
       }
 
       // Add tags into Tags Arr
-      const tagArr = collectionTags.split(',').map(tag => tag.trim());
+      const tagArr = normalizeTags(collectionTags);
       const newTags = tagArr.filter(tag => !user.collection_tags.includes(tag));
       if(newTags.length > 0){
         newTags.forEach(tag => {

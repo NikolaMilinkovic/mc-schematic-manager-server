@@ -3,14 +3,19 @@ const Schema = mongoose.Schema;
 
 const SchematicSchema = new Schema ({
   name: { type: String, required: true },
-  tags: [{ type: String }],
+  studio_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'Studio',
+    required: true,
+  },
+  tags: { type: [String], default: [] },
   created_at: { type: Date, required: true, default: Date.now() },
   original_file_name: { type: String },
   file: { type: Buffer, required: true },
   fawe_string: { type: String, default: '' },
   last_updated: { type: Date, default: Date.now() },
   image:{
-    publicId:{
+    key:{
         type: String,
         required: true,
     },
@@ -33,6 +38,8 @@ const SchematicSchema = new Schema ({
 })
 
 SchematicSchema.index({ name: 1 });
+SchematicSchema.index({ studio_id: 1 });
+SchematicSchema.index({ tags: 1 });
 SchematicSchema.index({ file: 1 });
 
 module.exports = mongoose.model("Schematic", SchematicSchema);

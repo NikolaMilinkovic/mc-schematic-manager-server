@@ -5,38 +5,61 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/user');
 const StudioUser = require('./models/studioUser')
 
+function getRequiredEnv(name) {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+
+  return value;
+}
+
+const JWT_SECRET = getRequiredEnv('JWT_SECRET');
+const PASSPORT_SESSION_SECRET = getRequiredEnv('PASSPORT_SESSION_SECRET');
+
+function isEmail(value) {
+  if (!value || typeof value !== 'string') {
+    return false;
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
 // Passport Local Strategy
 passport.use(
   new LocalStrategy(async(username, password, done) => {
     try {
-      const user = await User.findOne({ username: username });
-      const studioUser = await StudioUser.findOne({ username: username });
-      if (!user && !studioUser) {
-        console.log('NO USER FOUND')
-        return done(null, false, { message: "Incorrect username" });
+      const loginIdentifier = String(username || '').trim();
+
+      if (!loginIdentifier) {
+        return done(null, false, { message: 'Incorrect credentials' });
       }
 
-      if(user){
-        console.log('There is user')
+      if (isEmail(loginIdentifier)) {
+        const user = await User.findOne({ email: loginIdentifier.toLowerCase() });
+        if (!user) {
+          return done(null, false, { message: 'Incorrect credentials' });
+        }
+
         const match = await bcrypt.compare(password, user.password);
-
         if (!match) {
-          console.log('WRONG PASSWORD')
-          return done(null, false, { message: "Incorrect password" });
-        } else {
-          return done(null, user);
+          return done(null, false, { message: 'Incorrect credentials' });
         }
-      } else {
-        console.log('There is studioUser')
-        const match = await bcrypt.compare(password, studioUser.password);
 
-        if (!match) {
-          console.log('WRONG PASSWORD')
-          return done(null, false, { message: "Incorrect password" });
-        } else {
-          return done(null, studioUser);
-        }
+        return done(null, user);
       }
+
+      const studioUser = await StudioUser.findOne({ username: loginIdentifier });
+      if (!studioUser) {
+        return done(null, false, { message: 'Incorrect credentials' });
+      }
+
+      const match = await bcrypt.compare(password, studioUser.password);
+      if (!match) {
+        return done(null, false, { message: 'Incorrect credentials' });
+      }
+
+      return done(null, studioUser);
     } catch (err) {
       return done(err);
     }
@@ -62,7 +85,7 @@ passport.deserializeUser(async function(id, done) {
 // Middleware to initialize passport and session
 function initializePassport(app) {
   app.use(require('express-session')({
-    secret: 'potatoes',
+    secret: PASSPORT_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   }));
@@ -78,7 +101,7 @@ async function loginHandler(req, res) {
       const studioUser = await StudioUser.findById(req.user._id);
       user = await User.findById(req.user.parent_user_id);
 
-      const token = jwt.sign({ id: studioUser._id, username: studioUser.username }, 'potatoes', { expiresIn: '24h' });
+      const token = jwt.sign({ id: studioUser._id, username: studioUser.username }, JWT_SECRET, { expiresIn: '24h' });
       res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
 
       await updateUserSessionId(studioUser._id, token); // Update session_id before setting the cookie
@@ -86,7 +109,7 @@ async function loginHandler(req, res) {
       res.json({ message: 'Logged in successfully', token, user, studioUser });
     } else {
       user = req.user;
-      const token = jwt.sign({ id: req.user._id, username: req.user.username }, 'potatoes', { expiresIn: '24h' });
+      const token = jwt.sign({ id: req.user._id, username: req.user.username }, JWT_SECRET, { expiresIn: '24h' });
       res.cookie('token', token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, path: '/' });
 
       await updateUserSessionId(req.user._id, token); // Update session_id before setting the cookie
@@ -116,7 +139,7 @@ async function updateUserSessionId(id, token){
 function authenticateJWT(req, res, next) {
   const token = req.cookies.token;
   if (token) {
-    jwt.verify(token, 'potatoes', (err, user) => {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
         return res.sendStatus(403);
       }

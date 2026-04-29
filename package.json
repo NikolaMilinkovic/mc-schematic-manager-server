@@ -7,6 +7,8 @@
     "heroku-postbuild": "mkdir ./.cache && mv /app/.cache/puppeteer ./.cache"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1038.0",
+    "@aws-sdk/s3-request-presigner": "^3.1038.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.2.0",
