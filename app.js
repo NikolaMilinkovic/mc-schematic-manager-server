@@ -11,12 +11,6 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
-<<<<<<< HEAD
-const LocalStrategy = require("passport-local").Strategy;
-const jwt = require("jsonwebtoken");
-const { body, validationResult } = require("express-validator");
-=======
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
 const authModule = require("./authModule");
 const crypto = require("crypto");
 const authenticateUser = require("./routes/api/authenticateUser");
@@ -27,10 +21,7 @@ const app = express();
 // app.use(cors());
 const allowedOrigins = [
   "https://mc-schematic-manager.vercel.app",
-<<<<<<< HEAD
   "https://mc-schematic-manager-rework.vercel.app",
-=======
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
   "http://localhost:5173",
 ];
 
@@ -58,14 +49,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // ===============[ MongoDB connection ]=============== //
 const conn_string = process.env.DATABASE_URL;
-<<<<<<< HEAD
-mongoose.connect(conn_string);
-const db = mongoose.connection;
-if (db) {
-  console.log("> Connected to DB");
-}
-db.on("error", console.error.bind(console, "mongo connection error"));
-=======
 const dns = require("node:dns");
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -81,7 +64,6 @@ async function connectDB() {
 
 connectDB();
 
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
 // ===============[ \MongoDB connection ]=============== //
 
 async function addUserOnStartup(username, plainPassword) {
@@ -99,21 +81,12 @@ async function addUserOnStartup(username, plainPassword) {
       });
 
       await newUser.save();
-<<<<<<< HEAD
-      console.log(`> User [${username}] created`);
-    } else {
-      console.log(`> User [${username}] already exists`);
-    }
-  } catch (error) {
-    console.error("> Error creating user:", error);
-=======
       console.log("User created");
     } else {
       console.log("User already exists");
     }
   } catch (error) {
     console.error("Error creating user:", error);
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
   } finally {
     await mongoose.connection.close();
   }
@@ -124,21 +97,12 @@ async function addUserOnStartup(username, plainPassword) {
 
 app.use(
   session({
-<<<<<<< HEAD
-    secret:
-      process.env.SESSION_SECRET || crypto.randomBytes(64).toString("hex"),
-=======
     secret: crypto.randomBytes(64).toString("hex"),
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.DATABASE_URL,
-<<<<<<< HEAD
-      ttl: 365 * 24 * 60 * 60 * 1000, // session TTL (optional)
-=======
       ttl: 365 * 24 * 60 * 60 * 1000,
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
     }),
   }),
 );
@@ -148,95 +112,13 @@ authModule.initializePassport(app);
 // =====================[ \PASSPORT/JWT AUTHENTICATION ]=====================
 
 // =====================[ ROUTES ]=====================
-<<<<<<< HEAD
-const validateLoginForm = [
-  body("username").notEmpty().withMessage("Username is required").escape(),
-  body("password").notEmpty().withMessage("Password is required"),
-];
-app.post(
-  "/login",
-  validateLoginForm,
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  },
-  passport.authenticate("local", { session: false }),
-  authModule.loginHandler,
-);
-
-const registerRoute = require("./routes/auth/registerUser");
-app.use("/register", registerRoute);
-
-app.get("/protected", authModule.authenticateJWT, (req, res) => {
-  res.json({ message: "You are authenticated", user: req.user });
-});
-app.post("/logout", authModule.logoutHandler);
-
-// PASSWORD RESET ROUTE
-const passwordReset = require("./routes/auth/passwordReset");
-app.use(`/password-reset/`, passwordReset);
-
-const newPassword = require("./routes/auth/newPassword");
-app.use(`/new-password/`, newPassword);
-=======
 // ===== AUTH ROUTES (UNPROTECTED - before authenticateUser middleware) =====
 const authRouter = require("./routers/auth_router");
 app.use("/auth", authRouter);
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
 
 // ===== PROTECTED ROUTES =====
 app.use(authenticateUser);
 
-<<<<<<< HEAD
-const uploadRoute = require("./routes/api/faweUploadSchematic");
-app.use("/upload", uploadRoute);
-
-const uploadSchematic = require("./routes/api/uploadSchematic");
-app.use("/upload-schematic", uploadSchematic);
-
-const updateSchematic = require("./routes/api/updateSchematic");
-app.use("/update-schematic/", updateSchematic);
-
-const getAllSchematics = require("./routes/api/getAllSchematics");
-app.use("/get-schematics", getAllSchematics);
-
-const getAllTags = require("./routes/api/getAllTags");
-app.use("/get-tags", getAllTags);
-
-const getSchematicFile = require("./routes/api/getSchematicFile");
-app.use("/get-schematic-file/", getSchematicFile);
-
-const getSchematic = require("./routes/api/getSchematic");
-app.use("/get-schematic/", getSchematic);
-
-const getSchematicFAWEString = require("./routes/api/getSchematicFAWEString");
-app.use("/get-schematic-fawe-string/", getSchematicFAWEString);
-
-const removeSchematic = require("./routes/api/removeSchematic");
-app.use("/remove-schematic/", removeSchematic);
-
-const validateSession = require("./routes/api/validateSession");
-app.use("/validate-session", validateSession);
-
-const updateProfile = require("./routes/api/updateProfile");
-app.use("/update-profile", updateProfile);
-
-const getUserData = require("./routes/api/getUserData");
-app.use("/get-user-data", getUserData);
-
-const getAllStudioUsers = require("./routes/api/getAllStudioUsers");
-app.use("/get-all-studio-users", getAllStudioUsers);
-
-const updateStudioUsers = require("./routes/api/updateStudioUsers");
-app.use("/update-studio-users", updateStudioUsers);
-
-const removeStudioUser = require("./routes/api/removeStudioUser");
-app.use("/remove-studio-user", removeStudioUser);
-
-=======
 const schematicsRouter = require("./routers/schematics_router");
 app.use("/schematics", schematicsRouter);
 
@@ -258,7 +140,6 @@ app.use("/update-studio-users", updateStudioUsers);
 const removeStudioUser = require("./routes/api/removeStudioUser");
 app.use("/remove-studio-user", removeStudioUser);
 
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
 const getStudioOwnerData = require("./routes/api/getStudioOwnerData");
 app.use("/get-studio-owner-data", getStudioOwnerData);
 
@@ -288,18 +169,12 @@ app.use(`/remove-schematic-from-collection/`, removeSchematicFromCollection);
 const getCollectionsList = require("./routes/api/collection/getCollectionsList");
 app.use(`/get-collections-list/`, getCollectionsList);
 
-<<<<<<< HEAD
-const getSchematicsCurrentCollections = require("./routes/api/getSchematicsCurrentCollections");
-app.use(`/get-schematcis-collection-list/`, getSchematicsCurrentCollections);
-
-=======
 const openAIRouter = require("./routers/openAI_router");
 app.use("/openai", openAIRouter);
 
 const addSchematicsToCollection = require("./routes/api/collection/addSchematicsToCollection");
 app.use("/add-schematics-to-collection/", addSchematicsToCollection);
 
->>>>>>> ba3c0c403353752982c2cdeb4faa4972271c2cae
 // =====================[ \ROUTES ]=====================
 
 // =====================[ ERROR HANDLERS ]=====================
