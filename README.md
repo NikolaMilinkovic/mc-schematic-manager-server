@@ -66,6 +66,8 @@ Fill all required values, especially:
 - `JWT_SECRET`
 - `SESSION_SECRET`
 - Cloudinary values
+- `AWS_REGION`, `AWS_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (if using S3-backed features)
+- `OPENAI_API_KEY` (if using OpenAI endpoints)
 
 ### 4) Build and start
 

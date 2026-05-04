@@ -1,49 +1,57 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const puppeteer = require('puppeteer');
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const puppeteer = require("puppeteer");
 const router = express.Router();
 
 // Configure multer to save files with original names and extensions
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     const name = path.basename(file.originalname, ext);
-    cb(null, name + '-' + Date.now() + ext);
-  }
+    cb(null, name + "-" + Date.now() + ext);
+  },
 });
 
 const upload = multer({ storage: storage });
 
-router.post('/', upload.single('schematicFile'), async (req, res) => {
+router.post("/", upload.single("schematicFile"), async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
-      console.error('No file uploaded');
-      return res.status(400).send('No file uploaded.');
+      console.error("No file uploaded");
+      return res.status(400).send("No file uploaded.");
     }
 
-    // Launching puppeteer
-    const launchOptions = { headless: true };
+    // Docker-safe flags for Chromium when running as root in containers.
+    // Ako ne radi izbaci args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] iz launchOptions
+    const launchOptions = {
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
+    };
     const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
 
     // Navigating to the upload page
-    await page.goto('https://schem.intellectualsites.com/fawe/index.php');
+    await page.goto("https://schem.intellectualsites.com/fawe/index.php");
 
     // Waiting for file input selector
-    await page.waitForSelector('input[type=file]');
-    const inputUploadHandle = await page.$('input[type=file]');
+    await page.waitForSelector("input[type=file]");
+    const inputUploadHandle = await page.$("input[type=file]");
 
     // Uploading file
     await inputUploadHandle.uploadFile(file.path);
 
     let redirectUrl;
     // Listen for response events to track redirects
-    page.on('response', async (response) => {
+    page.on("response", async (response) => {
       const headers = response.headers();
       if (headers.location) {
         redirectUrl = headers.location;
@@ -53,9 +61,12 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
     // Use a try-catch block to catch TimeoutError and ignore it
     try {
       // Waiting for navigation
-      await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 1000 });
+      await page.waitForNavigation({
+        waitUntil: "networkidle0",
+        timeout: 1000,
+      });
     } catch {
-      console.warn('Navigation timed out, continuing...');
+      console.warn("Navigation timed out, continuing...");
     }
 
     await browser.close();
@@ -63,12 +74,12 @@ router.post('/', upload.single('schematicFile'), async (req, res) => {
     if (redirectUrl) {
       return res.send(redirectUrl);
     } else {
-      console.error('Failed to retrieve redirect URL');
-      res.status(500).json({ error: 'Failed to retrieve redirect URL.' });
+      console.error("Failed to retrieve redirect URL");
+      res.status(500).json({ error: "Failed to retrieve redirect URL." });
     }
   } catch (error) {
-    console.error('Error uploading file:', error.message);
-    res.status(500).send('Error uploading file: ' + error.message);
+    console.error("Error uploading file:", error.message);
+    res.status(500).send("Error uploading file: " + error.message);
   }
 });
 
