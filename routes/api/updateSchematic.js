@@ -8,6 +8,7 @@ const upload = multer();
 const { getFAWEString } = require('../../FAWE_string');
 const { body, check, validationResult } = require('express-validator');
 const Collection = require('../../models/collection')
+const { normalizeTags } = require('../../utils/tags');
 
 router.post('/:id',
   upload.single('schematicFile'),
@@ -109,7 +110,7 @@ router.post('/:id',
       }
 
       // Update Tags and Name
-      schematic.tags = tags.split(',');
+      schematic.tags = normalizeTags(tags);
       schematic.name = schematicName;
       if (blurHash) {
         schematic.blur_hash = {

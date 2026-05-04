@@ -7,6 +7,7 @@ const upload = multer();
 const { body, check, validationResult } = require('express-validator');
 const Collection = require('../../../models/collection');
 const User = require('../../../models/user');
+const { normalizeTags } = require('../../../utils/tags');
 
 
 router.post('/:id',
@@ -26,7 +27,7 @@ router.post('/:id',
     // =========================[EXTRACT DATA]=========================
       const id = req.params.id
       const { avatar, name, blurHash, blurHashWidth, blurHashHeight } = req.body;
-      const tags = req.body.tags.split(',').map(tag => tag.trim());
+      const tags = normalizeTags(req.body.tags);
       console.log(blurHash)
       console.log(blurHashWidth)
       console.log(blurHashHeight)

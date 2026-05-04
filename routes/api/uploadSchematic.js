@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 const router = express.Router();
-const Tags = require('../../models/tags');
 const Schematic = require('../../models/schematic');
 require('dotenv').config();
 const { uploadToCloudinary } = require('../../services/cloudinary');
@@ -12,6 +11,7 @@ const { getFAWEString } = require('../../FAWE_string');
 const { body, validationResult } = require('express-validator');
 const User = require('../../models/user');
 const Collection = require('../../models/collection')
+const { normalizeTags } = require('../../utils/tags');
 
 const upload = multer();
 router.post('/', 
@@ -55,17 +55,7 @@ router.post('/',
         }
       }
 
-      // Add tags into Tags Arr
-      const tagArr = tags.split(',').map(tag => tag.trim());
-      const tagsDocument = await Tags.findOne();
-      if(!tagsDocument){
-        await Tags.create({ tags: tagArr });
-      } else {
-        const newTags = tagArr.filter(tag => !tagsDocument.tags.includes(tag));
-        if(newTags.length > 0){
-          await Tags.findOneAndUpdate({}, {$push: { tags: { $each: newTags }}});
-        }
-      }
+      const tagArr = normalizeTags(tags);
 
       // GET FAWE STRING
       const FAWE = await getFAWEString(originalname, buffer, req, res);
